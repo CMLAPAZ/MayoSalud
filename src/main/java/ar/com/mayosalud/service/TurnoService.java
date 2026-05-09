@@ -1,15 +1,18 @@
 package ar.com.mayosalud.service;
 
 import ar.com.mayosalud.entity.EstadoTurno;
+import ar.com.mayosalud.entity.Feriado;
 import ar.com.mayosalud.entity.Medico;
 import ar.com.mayosalud.entity.Paciente;
 import ar.com.mayosalud.entity.Turno;
+import ar.com.mayosalud.repository.FeriadoRepository;
 import ar.com.mayosalud.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /** Lógica de negocio para turnos: agenda diaria, validación de conflicto de horario y cambio de estado. */
 @Service
@@ -18,6 +21,7 @@ import java.util.List;
 public class TurnoService {
 
     private final TurnoRepository turnoRepository;
+    private final FeriadoRepository feriadoRepository;
 
     @Transactional(readOnly = true)
     public List<Turno> listarPorFecha(LocalDate fecha) {
@@ -62,5 +66,11 @@ public class TurnoService {
 
     public void eliminar(Long id) {
         turnoRepository.deleteById(id);
+    }
+
+    /** Devuelve el feriado si la fecha lo es, o vacío si es día hábil. */
+    @Transactional(readOnly = true)
+    public Optional<Feriado> getFeriado(LocalDate fecha) {
+        return feriadoRepository.findByFechaAndActivoTrue(fecha);
     }
 }

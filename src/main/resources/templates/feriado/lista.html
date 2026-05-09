@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Feriados')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0"><i class="bi bi-calendar-x me-2"></i>Feriados</h4>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                <a th:href="@{/feriados(anio=${anioAnterior})}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <span class="fw-semibold" style="color:#1E3A4F; font-size:1rem;" th:text="${anio}"></span>
+                <a th:href="@{/feriados(anio=${anioSiguiente})}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+        <a th:href="@{/feriados/nuevo}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Agregar feriado
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0" th:if="${!feriados.isEmpty()}">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:120px">Fecha</th>
+                        <th>Nombre</th>
+                        <th style="width:200px">Tipo</th>
+                        <th style="width:100px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="f : ${feriados}">
+                        <td class="fw-semibold" th:text="${#temporals.format(f.fecha, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${f.nombre}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:class="${f.tipo.name() == 'NACIONAL'   ? 'badge bg-primary'    :
+                                             f.tipo.name() == 'PROVINCIAL'  ? 'badge bg-success'    :
+                                                                              'badge bg-warning text-dark'}"
+                                  th:text="${f.tipo.descripcion}"></span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/feriados/editar/{id}(id=${f.id})}"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form th:action="@{/feriados/eliminar/{id}(id=${f.id})}" method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar este feriado?')">
+                                <input type="hidden" name="anio" th:value="${anio}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${feriados.isEmpty()}" class="text-center text-muted py-5">
+                <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-25"></i>
+                No hay feriados cargados para <span th:text="${anio}"></span>.
+                <a th:href="@{/feriados/nuevo}" class="d-block mt-2">Agregar feriado</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -161,6 +161,11 @@
             </li>
             <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">Administración</div></li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/feriados') ? 'active' : ''}" href="/feriados">
+                    <i class="bi bi-calendar-x"></i> Feriados
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/auditoria') ? 'active' : ''}" href="/auditoria">
                     <i class="bi bi-shield-check"></i> Auditoría
                 </a>

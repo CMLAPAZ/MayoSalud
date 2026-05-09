@@ -54,6 +54,8 @@ public class TurnoController {
         model.addAttribute("cntConfirmado", cntConfirmado);
         model.addAttribute("cntAtendido",   cntAtendido);
         model.addAttribute("cntCancelado",  cntCancelado);
+        turnoService.getFeriado(fecha).ifPresent(f ->
+                model.addAttribute("feriadoDelDia", f));
         return "turno/agenda";
     }
 
@@ -63,7 +65,11 @@ public class TurnoController {
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         Turno turno = new Turno();
         if (pacienteId != null) turno.setPaciente(pacienteService.buscarPorId(pacienteId));
-        if (fecha != null) turno.setFecha(fecha);
+        if (fecha != null) {
+            turno.setFecha(fecha);
+            turnoService.getFeriado(fecha).ifPresent(f ->
+                    model.addAttribute("feriadoAviso", f));
+        }
         model.addAttribute("turno", turno);
         model.addAttribute("medicos", medicoService.listarActivos());
         model.addAttribute("pacientes", pacienteService.listarActivos());

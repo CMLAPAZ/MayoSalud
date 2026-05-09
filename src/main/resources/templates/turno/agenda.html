@@ -86,6 +86,15 @@
         </a>
     </div>
 
+    <!-- Aviso de feriado -->
+    <div th:if="${feriadoDelDia}" class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-3">
+        <i class="bi bi-calendar-x-fill fs-5"></i>
+        <div>
+            <strong th:text="${feriadoDelDia.tipo.descripcion}"></strong> —
+            <span th:text="${feriadoDelDia.nombre}"></span>
+        </div>
+    </div>
+
     <!-- Barra de resumen (solo si hay turnos) -->
     <div th:if="${!turnos.isEmpty()}" class="d-flex gap-2 flex-wrap mb-4">
         <span class="stat-pill bg-light text-dark border">

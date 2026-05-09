@@ -7,6 +7,14 @@
         <a href="/turnos" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
         <h4 class="fw-bold mb-0" th:text="${turno.id != null ? 'Editar turno' : 'Nuevo turno'}"></h4>
     </div>
+    <div th:if="${feriadoAviso}" class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-3">
+        <i class="bi bi-calendar-x-fill fs-5"></i>
+        <div>
+            <strong>Atención: la fecha seleccionada es feriado</strong> —
+            <span th:text="${feriadoAviso.nombre}"></span>
+            (<span th:text="${feriadoAviso.tipo.descripcion}"></span>)
+        </div>
+    </div>
     <div class="card">
         <div class="card-body">
             <form th:action="@{/turnos/guardar}" method="post" th:object="${turno}">

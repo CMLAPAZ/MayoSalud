@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
                 .requestMatchers("/auditoria/**").hasRole("ADMIN")
+                .requestMatchers("/feriados/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
