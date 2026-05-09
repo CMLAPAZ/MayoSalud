@@ -32,9 +32,10 @@
                         <td class="font-monospace small" th:text="${u.username}"></td>
                         <td class="small text-muted" th:text="${u.email != null ? u.email : '—'}"></td>
                         <td>
-                            <span th:class="${u.rol.name() == 'ADMIN'    ? 'badge bg-primary'   :
-                                             u.rol.name() == 'RECEPCION' ? 'badge bg-info text-dark' :
-                                                                           'badge bg-secondary'}"
+                            <span th:class="${u.rol.name() == 'ADMIN'      ? 'badge bg-primary'        :
+                                             u.rol.name() == 'RECEPCION'  ? 'badge bg-info text-dark'  :
+                                             u.rol.name() == 'MEDICO'     ? 'badge bg-secondary'       :
+                                                                            'badge bg-success'}"
                                   th:text="${u.rol.descripcion}"></span>
                         </td>
                         <td>

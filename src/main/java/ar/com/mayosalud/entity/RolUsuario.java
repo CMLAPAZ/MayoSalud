@@ -4,7 +4,8 @@ package ar.com.mayosalud.entity;
 public enum RolUsuario {
     ADMIN("Administrador"),
     RECEPCION("Recepción"),
-    MEDICO("Médico");
+    MEDICO("Médico"),
+    ENFERMERIA("Enfermería");
 
     private final String descripcion;
 
