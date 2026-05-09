@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Usuario')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/usuarios" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" th:text="${esNuevo ? 'Nuevo usuario' : 'Editar usuario'}"></h4>
+    </div>
+
+    <div class="card" style="max-width:520px;">
+        <div class="card-body">
+            <form th:action="${esNuevo ? '/usuarios/nuevo' : '/usuarios/editar/' + usuario.id}"
+                  method="post" th:object="${usuario}">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Nombre completo *</label>
+                        <input type="text" class="form-control" th:field="*{nombreCompleto}"
+                               placeholder="Ej: María González"
+                               th:classappend="${#fields.hasErrors('nombreCompleto')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Nombre de usuario *</label>
+                        <input type="text" class="form-control" th:field="*{username}"
+                               placeholder="Ej: mgonzalez"
+                               autocomplete="off"
+                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{username}"></div>
+                        <div class="form-text" th:if="${!esNuevo}">
+                            <i class="bi bi-info-circle"></i> Cambiar el nombre de usuario cerrará la sesión activa.
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Rol *</label>
+                        <select class="form-select" th:field="*{rol}"
+                                th:classappend="${#fields.hasErrors('rol')} ? 'is-invalid'">
+                            <option th:each="r : ${roles}" th:value="${r.name()}"
+                                    th:text="${r.descripcion}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{rol}"></div>
+                    </div>
+
+                    <!-- Contraseña solo para nuevos usuarios -->
+                    <div th:if="${esNuevo}" class="col-12">
+                        <hr class="my-2"/>
+                        <div th:if="${errorPassword}" class="alert alert-danger py-2 mb-3">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <span th:text="${errorPassword}"></span>
+                        </div>
+                        <label class="form-label fw-semibold">Contraseña *</label>
+                        <input type="password" class="form-control mb-2" name="passwordNuevo"
+                               placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+                        <label class="form-label fw-semibold">Confirmar contraseña *</label>
+                        <input type="password" class="form-control" name="passwordConfirm"
+                               placeholder="Repetir contraseña" autocomplete="new-password"/>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i> Guardar
+                    </button>
+                    <a href="/usuarios" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

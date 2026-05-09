@@ -1,23 +1,22 @@
 package ar.com.mayosalud.config;
 
 import ar.com.mayosalud.service.LoginAttemptService;
+import ar.com.mayosalud.service.UsuarioDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
-/** Configura autenticación, autorización por roles, sesión de 30 min y filtro anti fuerza bruta pre-login. */
+/** Configura autenticación desde BD, autorización por roles, sesión de 30 min y filtro anti fuerza bruta. */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,6 +25,7 @@ public class SecurityConfig {
     private final CustomAuthFailureHandler authFailureHandler;
     private final CustomAuthSuccessHandler authSuccessHandler;
     private final LoginAttemptService loginAttemptService;
+    private final UsuarioDetailsService usuarioDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,11 +45,13 @@ public class SecurityConfig {
                 },
                 UsernamePasswordAuthenticationFilter.class
             )
+            .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
                 .requestMatchers("/auditoria/**").hasRole("ADMIN")
                 .requestMatchers("/feriados/**").hasRole("ADMIN")
+                .requestMatchers("/usuarios/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -72,18 +74,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        var admin = User.builder()
-                .username("admin")
-                .password(encoder.encode("admin123"))
-                .roles("ADMIN")
-                .build();
-        var recepcion = User.builder()
-                .username("recepcion")
-                .password(encoder.encode("mayo2024"))
-                .roles("RECEPCION")
-                .build();
-        return new InMemoryUserDetailsManager(admin, recepcion);
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(usuarioDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean

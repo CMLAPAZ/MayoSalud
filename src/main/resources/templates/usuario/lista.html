@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Usuarios')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i>Usuarios del sistema</h4>
+        <a th:href="@{/usuarios/nuevo}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo usuario
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre completo</th>
+                        <th style="width:140px">Usuario</th>
+                        <th style="width:140px">Rol</th>
+                        <th style="width:100px">Estado</th>
+                        <th style="width:180px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${usuarios}">
+                        <td class="fw-semibold" th:text="${u.nombreCompleto}"></td>
+                        <td class="text-muted font-monospace" th:text="${u.username}"></td>
+                        <td>
+                            <span th:class="${u.rol.name() == 'ADMIN' ? 'badge bg-primary' : 'badge bg-secondary'}"
+                                  th:text="${u.rol.descripcion}"></span>
+                        </td>
+                        <td>
+                            <span th:class="${u.activo ? 'badge bg-success' : 'badge bg-danger'}"
+                                  th:text="${u.activo ? 'Activo' : 'Inactivo'}"></span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/usuarios/editar/{id}(id=${u.id})}"
+                               class="btn btn-sm btn-outline-secondary me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{/usuarios/cambiar-password/{id}(id=${u.id})}"
+                               class="btn btn-sm btn-outline-secondary me-1" title="Cambiar contraseña">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <form th:action="@{/usuarios/toggle-activo/{id}(id=${u.id})}" method="post" class="d-inline">
+                                <button type="submit"
+                                        th:class="${u.activo ? 'btn btn-sm btn-outline-warning me-1' : 'btn btn-sm btn-outline-success me-1'}"
+                                        th:title="${u.activo ? 'Desactivar' : 'Activar'}">
+                                    <i th:class="${u.activo ? 'bi bi-toggle-on' : 'bi bi-toggle-off'}"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{/usuarios/eliminar/{id}(id=${u.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${usuarios.isEmpty()}" class="text-center text-muted py-5">
+                <i class="bi bi-people fs-1 d-block mb-2 opacity-25"></i>
+                No hay usuarios registrados.
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
