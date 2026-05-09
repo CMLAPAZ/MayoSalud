@@ -73,9 +73,18 @@ public class UsuarioService {
         });
     }
 
-    /** Crea el usuario admin inicial si no existe ningún usuario en la base. */
+    /**
+     * Garantiza que el usuario "admin" exista, esté activo y tenga contraseña admin123.
+     * Si ya existe lo actualiza (password, rol, activo) sin tocar otros datos.
+     * Si no existe lo crea. Nunca almacena contraseña en texto plano.
+     */
     public void inicializarAdmin() {
-        if (usuarioRepository.count() == 0) {
+        usuarioRepository.findByUsername("admin").ifPresentOrElse(admin -> {
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRol(RolUsuario.ADMIN);
+            admin.setActivo(true);
+            usuarioRepository.save(admin);
+        }, () -> {
             Usuario admin = Usuario.builder()
                     .username("admin")
                     .password(passwordEncoder.encode("admin123"))
@@ -84,6 +93,6 @@ public class UsuarioService {
                     .activo(true)
                     .build();
             usuarioRepository.save(admin);
-        }
+        });
     }
 }
