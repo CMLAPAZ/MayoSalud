@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Agenda semanal')}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<main>
+<style>
+    .semana-wrap { overflow-x: auto; padding-bottom: .5rem; }
+    .semana-grid {
+        display: flex;
+        gap: .5rem;
+        min-width: 980px;
+        align-items: flex-start;
+    }
+    .semana-col { flex: 1; min-width: 130px; }
+
+    .semana-header {
+        border-radius: 10px;
+        padding: .55rem .4rem .45rem;
+        text-align: center;
+        background: #f4f7fa;
+        border: 1px solid #e2e8f0;
+        margin-bottom: .4rem;
+    }
+    .semana-header.hoy {
+        background: #e8f0f8;
+        border-color: #5B8DB8;
+    }
+    .semana-header a { text-decoration: none; color: inherit; display: block; }
+    .semana-header a:hover { opacity: .8; }
+    .semana-dia-nombre {
+        font-size: .65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: #6c757d;
+    }
+    .semana-header.hoy .semana-dia-nombre { color: #5B8DB8; }
+    .semana-dia-num {
+        font-size: 1.45rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #1E3A4F;
+    }
+    .semana-dia-mes {
+        font-size: .65rem;
+        color: #9ca3af;
+        margin-top: .1rem;
+    }
+
+    .semana-feriado {
+        font-size: .58rem;
+        font-weight: 600;
+        background: #fff3cd;
+        color: #856404;
+        border-radius: 5px;
+        padding: .15rem .3rem;
+        margin-top: .3rem;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .semana-turno {
+        border-radius: 7px;
+        border-left: 4px solid #dee2e6;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,.07);
+        padding: .3rem .4rem;
+        margin-bottom: .3rem;
+        transition: box-shadow .1s, transform .1s;
+    }
+    .semana-turno:hover { box-shadow: 0 3px 8px rgba(0,0,0,.13); transform: translateY(-1px); }
+    .semana-turno.estado-PENDIENTE  { border-left-color: #ffc107; }
+    .semana-turno.estado-CONFIRMADO { border-left-color: #5B8DB8; }
+    .semana-turno.estado-ATENDIDO   { border-left-color: #198754; }
+    .semana-turno.estado-CANCELADO  { border-left-color: #dc3545; }
+    .semana-turno.estado-AUSENTE    { border-left-color: #6c757d; }
+
+    .semana-turno-hora {
+        font-size: .68rem;
+        font-weight: 700;
+        color: #5B8DB8;
+        line-height: 1;
+    }
+    .semana-turno-pac {
+        font-size: .75rem;
+        font-weight: 600;
+        color: #1E3A4F;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        text-decoration: none;
+        margin-top: .1rem;
+    }
+    .semana-turno-pac:hover { text-decoration: underline; color: #1E3A4F; }
+    .semana-turno-med {
+        font-size: .62rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: .05rem;
+    }
+
+    .semana-vacio {
+        text-align: center;
+        color: #dee2e6;
+        padding: .8rem 0;
+        font-size: .75rem;
+    }
+    .semana-add {
+        display: block;
+        text-align: center;
+        padding: .25rem;
+        border-radius: 7px;
+        border: 1px dashed #dee2e6;
+        color: #adb5bd;
+        font-size: .7rem;
+        text-decoration: none;
+        margin-top: .25rem;
+        transition: all .15s;
+    }
+    .semana-add:hover { border-color: #5B8DB8; color: #5B8DB8; background: #f4f7fa; }
+
+    .view-toggle .btn { border-radius: 8px !important; }
+    .view-toggle .btn.active {
+        background-color: #5B8DB8;
+        border-color: #5B8DB8;
+        color: #fff;
+    }
+</style>
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-1">
+                <h4 class="fw-bold mb-0"><i class="bi bi-calendar-week me-2"></i>Agenda</h4>
+                <span th:if="${esEstaSemana}" class="badge bg-success" style="font-size:.7rem;">ESTA SEMANA</span>
+            </div>
+            <div style="font-size:.8rem; color:#5B8DB8; font-weight:600;" th:text="${semanaLabel}"></div>
+        </div>
+        <!-- Toggle día / semana -->
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm view-toggle">
+                <a th:href="@{/turnos(fecha=${lunes})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-calendar-day me-1"></i>Día
+                </a>
+                <a class="btn btn-outline-secondary active">
+                    <i class="bi bi-calendar-week me-1"></i>Semana
+                </a>
+            </div>
+            <a th:href="@{/turnos/nuevo(fecha=${lunes})}" class="btn btn-primary btn-sm"
+               sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
+                <i class="bi bi-plus-circle me-1"></i>Nuevo turno
+            </a>
+        </div>
+    </div>
+
+    <!-- Navegación de semana -->
+    <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+        <a th:href="@{/turnos/semana(fecha=${semanaAnterior})}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <form method="get" action="/turnos/semana">
+            <input type="date" name="fecha" class="form-control form-control-sm"
+                   th:value="${#temporals.format(lunes, 'yyyy-MM-dd')}"
+                   onchange="this.form.submit()" style="width:150px;"
+                   title="Ir a la semana que contiene esta fecha"/>
+        </form>
+        <a th:href="@{/turnos/semana(fecha=${semanaSiguiente})}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+        <a th:href="@{/turnos/semana}"
+           th:class="${esEstaSemana ? 'btn btn-primary btn-sm ms-1' : 'btn btn-outline-primary btn-sm ms-1'}">
+            <i class="bi bi-calendar-check me-1"></i>Esta semana
+        </a>
+    </div>
+
+    <!-- Grilla semanal -->
+    <div class="semana-wrap">
+        <div class="semana-grid">
+            <div class="semana-col" th:each="entry : ${turnosPorDia}">
+
+                <!-- Cabecera del día -->
+                <div class="semana-header" th:classappend="${entry.key.equals(hoy) ? ' hoy' : ''}">
+                    <a th:href="@{/turnos(fecha=${entry.key})}">
+                        <div class="semana-dia-nombre" th:text="${labelsPorDia[entry.key]}"></div>
+                        <div class="semana-dia-num"
+                             th:text="${#temporals.format(entry.key, 'dd')}"></div>
+                        <div class="semana-dia-mes"
+                             th:text="${#temporals.format(entry.key, 'MM/yyyy')}"></div>
+                    </a>
+                    <div th:if="${feriadosPorDia[entry.key] != null}" class="semana-feriado">
+                        <i class="bi bi-calendar-x me-1"></i>
+                        <span th:text="${feriadosPorDia[entry.key].nombre}"></span>
+                    </div>
+                </div>
+
+                <!-- Turno mini-cards -->
+                <div th:each="t : ${entry.value}"
+                     class="semana-turno"
+                     th:classappend="'estado-' + ${t.estado.name()}">
+                    <div class="semana-turno-hora"
+                         th:text="${#temporals.format(t.hora, 'HH:mm')}"></div>
+                    <a class="semana-turno-pac"
+                       th:href="@{/turnos/editar/{id}(id=${t.id})}"
+                       th:text="${t.paciente.nombreCompleto}"></a>
+                    <div class="semana-turno-med"
+                         th:text="${t.medico.nombreCompleto}"></div>
+                </div>
+
+                <!-- Sin turnos -->
+                <div th:if="${entry.value.isEmpty()}" class="semana-vacio">
+                    <i class="bi bi-dash-lg"></i>
+                </div>
+
+                <!-- Botón agregar (solo ADMIN y RECEPCION) -->
+                <a th:href="@{/turnos/nuevo(fecha=${entry.key})}"
+                   class="semana-add"
+                   sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
+                    <i class="bi bi-plus"></i> Nuevo
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package ar.com.mayosalud.controller;
 
 import ar.com.mayosalud.entity.EstadoTurno;
+import ar.com.mayosalud.entity.Feriado;
 import ar.com.mayosalud.entity.Turno;
 import ar.com.mayosalud.service.MedicoService;
 import ar.com.mayosalud.service.PacienteService;
@@ -13,12 +14,16 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-/** Gestiona la agenda diaria de turnos: navegación por fecha, cambio de estado y CRUD. */
+/** Gestiona la agenda de turnos: vista diaria, semanal, cambio de estado y CRUD. */
 @Controller
 @RequestMapping("/turnos")
 @RequiredArgsConstructor
@@ -30,6 +35,13 @@ public class TurnoController {
 
     private static final DateTimeFormatter FMT_DIA =
             DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", new Locale("es", "AR"));
+    private static final DateTimeFormatter FMT_MES_ANIO =
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "AR"));
+    private static final DateTimeFormatter FMT_DIA_MES =
+            DateTimeFormatter.ofPattern("d 'de' MMMM", new Locale("es", "AR"));
+    private static final String[] ABREV_DIA = {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
+
+    // ── Vista diaria ─────────────────────────────────────────────────────────
 
     @GetMapping
     public String agenda(Model model,
@@ -54,10 +66,54 @@ public class TurnoController {
         model.addAttribute("cntConfirmado", cntConfirmado);
         model.addAttribute("cntAtendido",   cntAtendido);
         model.addAttribute("cntCancelado",  cntCancelado);
-        turnoService.getFeriado(fecha).ifPresent(f ->
-                model.addAttribute("feriadoDelDia", f));
+        turnoService.getFeriado(fecha).ifPresent(f -> model.addAttribute("feriadoDelDia", f));
         return "turno/agenda";
     }
+
+    // ── Vista semanal ─────────────────────────────────────────────────────────
+
+    @GetMapping("/semana")
+    public String semana(Model model,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        if (fecha == null) fecha = LocalDate.now();
+
+        LocalDate lunes  = fecha.with(DayOfWeek.MONDAY);
+        LocalDate domingo = lunes.plusDays(6);
+
+        // Turnos agrupados por día (orden lunes → domingo)
+        List<Turno> todos = turnoService.listarEntreFechas(lunes, domingo);
+        Map<LocalDate, List<Turno>> turnosPorDia = new LinkedHashMap<>();
+        for (int i = 0; i < 7; i++) turnosPorDia.put(lunes.plusDays(i), new ArrayList<>());
+        todos.forEach(t -> turnosPorDia.get(t.getFecha()).add(t));
+
+        // Feriados de la semana indexados por fecha
+        Map<LocalDate, Feriado> feriadosPorDia = turnoService.getFeriadosSemana(lunes, domingo);
+
+        // Etiquetas de día pre-formateadas para evitar problemas de locale en la vista
+        Map<LocalDate, String> labelsPorDia = new LinkedHashMap<>();
+        for (int i = 0; i < 7; i++) labelsPorDia.put(lunes.plusDays(i), ABREV_DIA[i]);
+
+        // Encabezado de rango de semana
+        String semanaLabel = lunes.getMonth() == domingo.getMonth()
+                ? lunes.getDayOfMonth() + " al " + domingo.format(FMT_MES_ANIO)
+                : lunes.format(FMT_DIA_MES) + " al " + domingo.format(FMT_MES_ANIO);
+
+        LocalDate hoy = LocalDate.now();
+        model.addAttribute("turnosPorDia",   turnosPorDia);
+        model.addAttribute("feriadosPorDia", feriadosPorDia);
+        model.addAttribute("labelsPorDia",   labelsPorDia);
+        model.addAttribute("semanaLabel",    semanaLabel);
+        model.addAttribute("lunes",          lunes);
+        model.addAttribute("domingo",        domingo);
+        model.addAttribute("hoy",            hoy);
+        model.addAttribute("esEstaSemana",   lunes.equals(hoy.with(DayOfWeek.MONDAY)));
+        model.addAttribute("semanaAnterior", lunes.minusWeeks(1));
+        model.addAttribute("semanaSiguiente",lunes.plusWeeks(1));
+        model.addAttribute("estadosTurno",   EstadoTurno.values());
+        return "turno/semana";
+    }
+
+    // ── CRUD ─────────────────────────────────────────────────────────────────
 
     @GetMapping("/nuevo")
     public String nuevo(Model model,
@@ -67,8 +123,7 @@ public class TurnoController {
         if (pacienteId != null) turno.setPaciente(pacienteService.buscarPorId(pacienteId));
         if (fecha != null) {
             turno.setFecha(fecha);
-            turnoService.getFeriado(fecha).ifPresent(f ->
-                    model.addAttribute("feriadoAviso", f));
+            turnoService.getFeriado(fecha).ifPresent(f -> model.addAttribute("feriadoAviso", f));
         }
         model.addAttribute("turno", turno);
         model.addAttribute("medicos", medicoService.listarActivos());

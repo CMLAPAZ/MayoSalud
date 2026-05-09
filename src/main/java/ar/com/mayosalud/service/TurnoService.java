@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Lógica de negocio para turnos: agenda diaria, validación de conflicto de horario y cambio de estado. */
 @Service
@@ -72,5 +74,14 @@ public class TurnoService {
     @Transactional(readOnly = true)
     public Optional<Feriado> getFeriado(LocalDate fecha) {
         return feriadoRepository.findByFechaAndActivoTrue(fecha);
+    }
+
+    /** Devuelve los feriados activos de un rango de fechas indexados por fecha. */
+    @Transactional(readOnly = true)
+    public Map<LocalDate, Feriado> getFeriadosSemana(LocalDate desde, LocalDate hasta) {
+        return feriadoRepository.findByFechaBetweenOrderByFechaAsc(desde, hasta)
+                .stream()
+                .filter(Feriado::isActivo)
+                .collect(Collectors.toMap(Feriado::getFecha, f -> f));
     }
 }
