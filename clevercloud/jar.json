@@ -1,5 +1,0 @@
-{
-  "deploy": {
-    "jarName": "target/mayosalud-1.0.0.jar"
-  }
-}

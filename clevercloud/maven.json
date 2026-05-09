@@ -1,5 +1,5 @@
 {
   "deploy": {
-    "goal": "package -DskipTests"
+    "goal": "spring-boot:run -Dspring-boot.run.fork=false"
   }
 }
