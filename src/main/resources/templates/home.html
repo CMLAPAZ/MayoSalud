@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Inicio')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Bienvenido al sistema</h4>
+            <small class="text-muted text-capitalize" th:text="${hoyFormateado}"></small>
+        </div>
+        <a href="/turnos/nuevo" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo turno
+        </a>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card h-100" style="background: linear-gradient(135deg,#2C5F82,#3d7aa3);">
+                <div class="stat-value text-white" th:text="${totalPacientes}">0</div>
+                <div class="stat-label text-white">Pacientes registrados</div>
+                <i class="bi bi-people position-absolute" style="font-size:3rem;right:1rem;top:.75rem;opacity:.15;color:#fff"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 position-relative" style="background: linear-gradient(135deg,#5B8DB8,#7aafd0);">
+                <div class="stat-value text-white" th:text="${totalTurnosHoy}">0</div>
+                <div class="stat-label text-white">Turnos hoy</div>
+                <i class="bi bi-calendar3 position-absolute" style="font-size:3rem;right:1rem;top:.75rem;opacity:.15;color:#fff"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 position-relative" style="background: linear-gradient(135deg,#1E3A4F,#2C5F82);">
+                <div class="stat-value text-white" th:text="${totalMedicos}">0</div>
+                <div class="stat-label text-white">Médicos activos</div>
+                <i class="bi bi-person-badge position-absolute" style="font-size:3rem;right:1rem;top:.75rem;opacity:.15;color:#fff"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 position-relative" style="background: linear-gradient(135deg,#4a7aa3,#5B8DB8);">
+                <div th:if="${ultimoTurno != null}">
+                    <div class="stat-value text-white" th:text="${#temporals.format(ultimoTurno.fecha, 'dd/MM')}">--</div>
+                    <div class="stat-label text-white" th:text="${ultimoTurno.paciente.nombreCompleto}">--</div>
+                </div>
+                <div th:unless="${ultimoTurno != null}">
+                    <div class="stat-value text-white">--</div>
+                    <div class="stat-label text-white">Sin turnos aún</div>
+                </div>
+                <i class="bi bi-clock-history position-absolute" style="font-size:3rem;right:1rem;top:.75rem;opacity:.15;color:#fff"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contadores rápidos del día -->
+    <div class="row g-2 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center py-2 px-3">
+                <div class="fw-bold text-warning fs-5"
+                     th:text="${#lists.size(turnosHoy.?[estado.name() == 'PENDIENTE'])}">0</div>
+                <div class="text-muted" style="font-size:.75rem">Pendientes</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-2 px-3">
+                <div class="fw-bold text-success fs-5"
+                     th:text="${#lists.size(turnosHoy.?[estado.name() == 'ATENDIDO'])}">0</div>
+                <div class="text-muted" style="font-size:.75rem">Atendidos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-2 px-3">
+                <div class="fw-bold text-danger fs-5"
+                     th:text="${#lists.size(turnosHoy.?[estado.name() == 'CANCELADO'])}">0</div>
+                <div class="text-muted" style="font-size:.75rem">Cancelados</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-2 px-3">
+                <div class="fw-bold fs-5" style="color:var(--color-btn)"
+                     th:text="${#lists.size(turnosHoy.?[estado.name() == 'CONFIRMADO'])}">0</div>
+                <div class="text-muted" style="font-size:.75rem">Confirmados</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de turnos del día -->
+    <div class="card">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-semibold" style="color:var(--color-heading)">
+                <i class="bi bi-calendar-day me-2"></i>Agenda de hoy
+            </span>
+            <a href="/turnos" class="btn btn-sm btn-outline-secondary">Ver agenda completa</a>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0" th:if="${!turnosHoy.isEmpty()}">
+                <thead class="table-light">
+                    <tr>
+                        <th>Hora</th><th>Paciente</th><th>Médico</th><th>Motivo</th><th>Estado</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="turno : ${turnosHoy}">
+                        <td class="fw-semibold" th:text="${#temporals.format(turno.hora, 'HH:mm')}"></td>
+                        <td th:text="${turno.paciente.nombreCompleto}"></td>
+                        <td th:text="${turno.medico.nombreCompleto}"></td>
+                        <td th:text="${turno.motivo}"></td>
+                        <td>
+                            <span class="badge" th:classappend="'badge-estado-' + ${turno.estado.name()}"
+                                  th:text="${turno.estado.descripcion}"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/turnos/editar/{id}(id=${turno.id})}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${turnosHoy.isEmpty()}" class="text-center text-muted py-5">
+                <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-25"></i>
+                No hay turnos para hoy.
+                <a href="/turnos/nuevo" class="d-block mt-2">Agregar turno</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

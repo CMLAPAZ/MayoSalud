@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Médico')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/medicos" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" th:text="${medico.id != null ? 'Editar médico' : 'Nuevo médico'}"></h4>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted small mb-3">Los campos marcados con <span class="text-danger">*</span> son obligatorios.</p>
+            <form th:action="@{/medicos/guardar}" method="post" th:object="${medico}" novalidate>
+                <input type="hidden" th:field="*{id}"/>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{apellido}"
+                               th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'"
+                               placeholder="Solo letras"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{nombre}"
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                               placeholder="Solo letras"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">DNI <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{dni}"
+                               th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid'"
+                               placeholder="7 u 8 dígitos" maxlength="8"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Matrícula <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{matricula}"
+                               th:classappend="${#fields.hasErrors('matricula')} ? 'is-invalid'"
+                               placeholder="Solo números"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Especialidad <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{especialidad}"
+                                th:classappend="${#fields.hasErrors('especialidad')} ? 'is-invalid'">
+                            <option value="">-- Seleccionar --</option>
+                            <option th:each="esp : ${especialidades}" th:value="${esp.name()}"
+                                    th:text="${esp.descripcion}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                               placeholder="ejemplo@mail.com"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" class="form-control" th:field="*{telefono}"
+                               th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid'"
+                               placeholder="Solo números"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar</button>
+                    <a href="/medicos" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

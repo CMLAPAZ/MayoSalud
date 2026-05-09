@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es" th:fragment="layout(content, titulo)"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${titulo != null ? titulo + ' - MayoSalud' : 'MayoSalud'}">MayoSalud</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --color-primary:   #2C5F82;
+            --color-btn:       #5B8DB8;
+            --color-bg:        #F4F7FA;
+            --color-heading:   #1E3A4F;
+            --color-sidebar-bg:#1E3A4F;
+            --color-sidebar-hover: rgba(255,255,255,.1);
+        }
+
+        *, body { font-family: 'Inter', sans-serif; font-size: 14px; }
+
+        body { background-color: var(--color-bg); }
+
+        /* Navbar */
+        .navbar { background-color: var(--color-primary) !important; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+        .navbar-brand { font-weight: 700; font-size: 1.1rem; letter-spacing: .5px; }
+
+        /* Sidebar */
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: var(--color-sidebar-bg);
+            width: 220px;
+            flex-shrink: 0;
+        }
+        .sidebar-logo {
+            padding: 1.5rem 1rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            margin-bottom: .5rem;
+        }
+        .sidebar-logo img { height: 52px; margin-bottom: .5rem; }
+        .sidebar-logo span { display: block; color: #fff; font-weight: 700; font-size: .95rem; letter-spacing: .5px; }
+        .sidebar-logo small { color: rgba(255,255,255,.5); font-size: .7rem; }
+
+        .sidebar .nav-section {
+            padding: .5rem 1rem .2rem;
+            font-size: .65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,.4);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.75);
+            border-radius: 8px;
+            margin: 1px .75rem;
+            padding: .55rem .85rem;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-weight: 400;
+            transition: background .15s, color .15s;
+        }
+        .sidebar .nav-link i { font-size: 1rem; width: 18px; text-align: center; }
+        .sidebar .nav-link:hover  { background: var(--color-sidebar-hover); color: #fff; }
+        .sidebar .nav-link.active { background: var(--color-btn); color: #fff; font-weight: 500; }
+
+        /* Content */
+        .content-area { padding: 2rem; flex: 1; }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.07);
+        }
+        .card-header { border-radius: 12px 12px 0 0 !important; }
+
+        /* Headings */
+        h4, h5, h6 { color: var(--color-heading); }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--color-btn);
+            border-color: var(--color-btn);
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #4a7aa3;
+            border-color: #4a7aa3;
+        }
+
+        /* Badges de estado */
+        .badge-estado-PENDIENTE  { background-color: #ffc107 !important; color: #000 !important; }
+        .badge-estado-CONFIRMADO { background-color: var(--color-btn) !important; }
+        .badge-estado-ATENDIDO   { background-color: #198754 !important; }
+        .badge-estado-CANCELADO  { background-color: #dc3545 !important; }
+        .badge-estado-AUSENTE    { background-color: #6c757d !important; }
+
+        /* Table */
+        .table { font-size: 13.5px; }
+        .table thead th { font-weight: 600; color: var(--color-heading); border-bottom: 2px solid #e2e8f0; }
+
+        /* Stat cards */
+        .stat-card { border-radius: 14px; padding: 1.25rem 1.5rem; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+        .stat-card .stat-label { font-size: .78rem; font-weight: 500; opacity: .8; margin-top: .3rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <img src="/images/logo.png" alt="Logo" style="height:28px; background:#fff; border-radius:8px; padding:3px;">
+            MayoSalud
+            <i class="bi bi-heart-pulse-fill" style="font-size:.85rem; opacity:.7;"></i>
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white-50 small" sec:authentication="name">usuario</span>
+            <form th:action="@{/logout}" method="post" class="mb-0">
+                <button type="submit" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="d-flex">
+    <nav class="sidebar d-none d-md-flex flex-column">
+        <div class="sidebar-logo">
+            <img src="/images/logo.png" alt="Logo" style="background:#fff; border-radius:8px; padding:3px;">
+            <span>MayoSalud <i class="bi bi-heart-pulse-fill" style="font-size:.75rem; opacity:.6;"></i></span>
+            <small>Clínica Mayo S.R.L.</small>
+        </div>
+        <ul class="nav flex-column pb-3">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI == '/' ? 'active' : ''}" href="/">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+            </li>
+            <li><div class="nav-section">Agenda</div></li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Turnos
+                </a>
+            </li>
+            <li><div class="nav-section">Gestión</div></li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/pacientes') ? 'active' : ''}" href="/pacientes">
+                    <i class="bi bi-people"></i> Pacientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/medicos') ? 'active' : ''}" href="/medicos">
+                    <i class="bi bi-person-badge"></i> Médicos
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">Administración</div></li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/auditoria') ? 'active' : ''}" href="/auditoria">
+                    <i class="bi bi-shield-check"></i> Auditoría
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="content-area">
+        <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i><span th:text="${exito}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:insert="${content}"></div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

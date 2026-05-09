@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Turno')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/turnos" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" th:text="${turno.id != null ? 'Editar turno' : 'Nuevo turno'}"></h4>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/turnos/guardar}" method="post" th:object="${turno}">
+                <input type="hidden" th:field="*{id}"/>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Paciente *</label>
+                        <select class="form-select" th:field="*{paciente.id}"
+                                th:classappend="${#fields.hasErrors('paciente')} ? 'is-invalid'">
+                            <option value="">-- Seleccionar paciente --</option>
+                            <option th:each="p : ${pacientes}" th:value="${p.id}"
+                                    th:text="${p.nombreCompleto + ' (DNI: ' + p.dni + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{paciente}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Médico *</label>
+                        <select class="form-select" th:field="*{medico.id}"
+                                th:classappend="${#fields.hasErrors('medico')} ? 'is-invalid'">
+                            <option value="">-- Seleccionar médico --</option>
+                            <option th:each="m : ${medicos}" th:value="${m.id}"
+                                    th:text="${m.nombreCompleto + ' - ' + m.especialidad.descripcion}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{medico}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha *</label>
+                        <input type="date" class="form-control" th:field="*{fecha}"
+                               th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{fecha}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Hora *</label>
+                        <input type="time" class="form-control" th:field="*{hora}"
+                               th:classappend="${#fields.hasErrors('hora')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{hora}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select class="form-select" th:field="*{estado}">
+                            <option th:each="e : ${estados}" th:value="${e.name()}"
+                                    th:text="${e.descripcion}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Motivo de consulta</label>
+                        <input type="text" class="form-control" th:field="*{motivo}"
+                               placeholder="Ej: Control, dolor de cabeza, etc."/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Observaciones</label>
+                        <textarea class="form-control" th:field="*{observaciones}" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar</button>
+                    <a href="/turnos" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

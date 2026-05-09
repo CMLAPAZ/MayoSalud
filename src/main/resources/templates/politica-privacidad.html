@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Política de Privacidad - MayoSalud</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <style>
+        *, body { font-family: 'Inter', sans-serif; font-size: 14px; }
+        body { background: #F4F7FA; }
+        .header-bar { background: linear-gradient(135deg, #1E3A4F, #2C5F82); color: #fff; padding: 1.5rem 0; }
+        .header-bar img { height: 44px; background:#fff; border-radius:8px; padding:3px; }
+        h5, h6 { color: #1E3A4F; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+        .badge-ley { background-color: #5B8DB8; font-size: .75rem; }
+    </style>
+</head>
+<body>
+<div class="header-bar mb-4">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3">
+            <img src="/images/logo.png" alt="Logo"/>
+            <div>
+                <div class="fw-bold fs-5">MayoSalud</div>
+                <div style="opacity:.7; font-size:.8rem;">Clínica Mayo S.R.L.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5" style="max-width: 860px;">
+    <div class="card">
+        <div class="card-body p-4 p-md-5">
+
+            <h4 class="fw-bold mb-1"><i class="bi bi-shield-lock me-2"></i>Política de Privacidad</h4>
+            <p class="text-muted small mb-4">
+                Última actualización: mayo de 2025 &nbsp;·&nbsp;
+                <span class="badge badge-ley text-white">Ley 25.326</span>
+                <span class="badge badge-ley text-white ms-1">Ley 26.529</span>
+            </p>
+
+            <h6 class="fw-semibold mt-4 mb-2">1. Responsable del tratamiento de datos</h6>
+            <p>
+                <strong>Clínica Mayo S.R.L.</strong> es responsable del tratamiento de los datos personales
+                recopilados a través del sistema <em>MayoSalud</em>, en cumplimiento de la
+                <strong>Ley 25.326 de Protección de Datos Personales</strong> de la República Argentina
+                y la <strong>Ley 26.529 de Derechos del Paciente</strong>.
+            </p>
+
+            <h6 class="fw-semibold mt-4 mb-2">2. Datos que recopilamos</h6>
+            <ul>
+                <li>Datos de identificación personal: nombre, apellido, DNI, fecha de nacimiento, sexo.</li>
+                <li>Datos de contacto: dirección, teléfono, correo electrónico.</li>
+                <li>Datos de cobertura médica: obra social y número de afiliado.</li>
+                <li>Datos clínicos: antecedentes, alergias, historial de turnos y atenciones.</li>
+                <li>Fecha y hora de otorgamiento del consentimiento informado.</li>
+            </ul>
+
+            <h6 class="fw-semibold mt-4 mb-2">3. Finalidad del tratamiento</h6>
+            <p>Los datos recopilados se utilizan exclusivamente para:</p>
+            <ul>
+                <li>Gestionar la historia clínica electrónica del paciente.</li>
+                <li>Coordinar turnos y atenciones médicas.</li>
+                <li>Comunicarse con el paciente en relación a sus atenciones.</li>
+                <li>Cumplir con las obligaciones legales en materia sanitaria.</li>
+            </ul>
+
+            <h6 class="fw-semibold mt-4 mb-2">4. Confidencialidad y seguridad</h6>
+            <p>
+                Toda la información se trata con carácter de <strong>secreto médico</strong>.
+                El acceso está restringido al personal autorizado de la institución mediante
+                autenticación con usuario y contraseña. El sistema registra en forma automática
+                todas las operaciones realizadas sobre los datos (auditoría).
+            </p>
+
+            <h6 class="fw-semibold mt-4 mb-2">5. Derechos del paciente (Art. 14, Ley 25.326)</h6>
+            <p>
+                El paciente tiene derecho a acceder, rectificar, actualizar y suprimir sus datos personales
+                en cualquier momento, de forma gratuita. Para ejercer estos derechos puede dirigirse a:
+            </p>
+            <div class="bg-light rounded p-3 mb-3">
+                <p class="mb-1"><i class="bi bi-geo-alt me-2 text-primary"></i><strong>Clínica Mayo S.R.L.</strong> — Mesa de Entradas</p>
+                <p class="mb-0 text-muted small">
+                    La <em>Agencia de Acceso a la Información Pública</em> es el órgano de control de la Ley 25.326.
+                    Sitio web: <strong>www.argentina.gob.ar/aaip</strong>
+                </p>
+            </div>
+
+            <h6 class="fw-semibold mt-4 mb-2">6. Historia clínica (Ley 26.529)</h6>
+            <p>
+                De conformidad con la Ley 26.529, la historia clínica electrónica es propiedad del paciente.
+                La clínica garantiza su conservación por el plazo mínimo legal de <strong>10 años</strong>
+                desde la última atención. El paciente puede solicitar una copia en cualquier momento.
+            </p>
+
+            <h6 class="fw-semibold mt-4 mb-2">7. Consentimiento informado</h6>
+            <p>
+                Al registrarse en el sistema, el paciente otorga consentimiento expreso para el tratamiento
+                de sus datos con las finalidades descritas en esta política. El sistema registra la fecha y hora
+                exacta del otorgamiento del consentimiento.
+            </p>
+
+            <hr class="my-4"/>
+            <div class="text-center">
+                <a href="/login" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

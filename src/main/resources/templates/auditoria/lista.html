@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Auditoría')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>Registro de Auditoría</h4>
+        <span class="badge bg-secondary" th:text="${logs.size()} + ' registros'"></span>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form method="get" action="/auditoria" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1" style="font-size:.8rem">Desde</label>
+                    <input type="date" name="desde" class="form-control form-control-sm"
+                           th:value="${desde != null ? #temporals.format(desde, 'yyyy-MM-dd') : ''}"/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1" style="font-size:.8rem">Hasta</label>
+                    <input type="date" name="hasta" class="form-control form-control-sm"
+                           th:value="${hasta != null ? #temporals.format(hasta, 'yyyy-MM-dd') : ''}"/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold mb-1" style="font-size:.8rem">Usuario</label>
+                    <input type="text" name="usuario" class="form-control form-control-sm"
+                           placeholder="Filtrar por usuario..." th:value="${usuario}"/>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-search me-1"></i>Filtrar
+                    </button>
+                    <a href="/auditoria" class="btn btn-outline-secondary btn-sm" title="Limpiar">
+                        <i class="bi bi-x"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0" th:if="${!logs.isEmpty()}">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:150px">Fecha y Hora</th>
+                        <th style="width:100px">Usuario</th>
+                        <th style="width:90px">Acción</th>
+                        <th style="width:90px">Entidad</th>
+                        <th style="width:60px">ID</th>
+                        <th>Detalle</th>
+                        <th style="width:120px">IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td class="text-muted" style="font-size:.8rem"
+                            th:text="${#temporals.format(log.fechaHora, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                        <td>
+                            <span class="fw-semibold" th:text="${log.usuario}"></span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${log.accion == 'CREAR'         ? 'bg-success'  :
+                                                   log.accion == 'MODIFICAR'     ? 'bg-primary'   :
+                                                   log.accion == 'ELIMINAR'      ? 'bg-danger'    :
+                                                   log.accion == 'BAJA'          ? 'bg-danger'    :
+                                                   log.accion == 'LOGIN_FALLIDO' ? 'bg-warning text-dark' :
+                                                   log.accion == 'BLOQUEADO'     ? 'bg-danger'    :
+                                                                                   'bg-secondary'}"
+                                  th:text="${log.accion}"></span>
+                        </td>
+                        <td class="text-muted small" th:text="${log.entidad}"></td>
+                        <td class="text-muted small text-center" th:text="${log.entidadId}"></td>
+                        <td class="small" th:text="${log.detalle}"></td>
+                        <td class="text-muted" style="font-size:.75rem" th:text="${log.ip}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${logs.isEmpty()}" class="text-center text-muted py-5">
+                <i class="bi bi-shield-check fs-1 d-block mb-2 opacity-25"></i>
+                No hay registros para los filtros seleccionados.
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

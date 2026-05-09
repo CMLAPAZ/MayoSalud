@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Paciente')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/pacientes" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" th:text="${paciente.id != null ? 'Editar paciente' : 'Nuevo paciente'}"></h4>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted small mb-3">Los campos marcados con <span class="text-danger">*</span> son obligatorios.</p>
+            <form th:action="@{/pacientes/guardar}" method="post" th:object="${paciente}" novalidate>
+                <input type="hidden" th:field="*{id}"/>
+                <h6 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size:.75rem">Datos personales</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{apellido}"
+                               th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'"
+                               placeholder="Solo letras"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{nombre}"
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                               placeholder="Solo letras"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">DNI <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{dni}"
+                               th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid'"
+                               placeholder="7 u 8 dígitos" maxlength="8"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha de nacimiento <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" th:field="*{fechaNacimiento}"
+                               th:classappend="${#fields.hasErrors('fechaNacimiento')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Sexo</label>
+                        <select class="form-select" th:field="*{sexo}">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="X">No binario / Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" class="form-control" th:field="*{direccion}"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" class="form-control" th:field="*{telefono}"
+                               th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid'"
+                               placeholder="Solo números"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                               placeholder="ejemplo@mail.com"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+                </div>
+                <hr class="my-4"/>
+                <h6 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size:.75rem">Cobertura médica</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Obra Social</label>
+                        <select class="form-select" th:field="*{obraSocial}">
+                            <option th:each="os : ${obrasSociales}" th:value="${os.name()}"
+                                    th:text="${os.descripcion}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nro. Afiliado</label>
+                        <input type="text" class="form-control" th:field="*{nroAfiliado}"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Antecedentes / Alergias</label>
+                        <textarea class="form-control" th:field="*{antecedentes}" rows="3"
+                                  placeholder="Antecedentes médicos relevantes, alergias conocidas..."></textarea>
+                    </div>
+                </div>
+                <!-- Consentimiento informado (solo para nuevos pacientes) -->
+                <div th:if="${paciente.id == null}">
+                    <hr class="my-4"/>
+                    <h6 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size:.75rem">Consentimiento informado</h6>
+                    <div th:if="${errorConsentimiento}" class="alert alert-danger py-2 mb-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorConsentimiento}"></span>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="consentimiento" id="consentimiento" value="true"/>
+                        <label class="form-check-label" for="consentimiento">
+                            El paciente autoriza el tratamiento de sus datos personales según la
+                            <strong>Ley 25.326 de Protección de Datos Personales</strong>.
+                            <a href="/politica-privacidad" target="_blank" class="text-decoration-none">Ver política de privacidad</a>
+                        </label>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar</button>
+                    <a href="/pacientes" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
