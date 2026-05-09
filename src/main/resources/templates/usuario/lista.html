@@ -16,24 +16,35 @@
                 <thead class="table-light">
                     <tr>
                         <th>Nombre completo</th>
-                        <th style="width:140px">Usuario</th>
-                        <th style="width:140px">Rol</th>
-                        <th style="width:100px">Estado</th>
-                        <th style="width:180px"></th>
+                        <th style="width:130px">Usuario</th>
+                        <th>Email</th>
+                        <th style="width:130px">Rol</th>
+                        <th style="width:90px">Estado</th>
+                        <th style="width:140px">Creado</th>
+                        <th style="width:140px">Último acceso</th>
+                        <th style="width:130px"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="u : ${usuarios}">
+                    <tr th:each="u : ${usuarios}"
+                        th:class="${!u.activo ? 'table-secondary text-muted' : ''}">
                         <td class="fw-semibold" th:text="${u.nombreCompleto}"></td>
-                        <td class="text-muted font-monospace" th:text="${u.username}"></td>
+                        <td class="font-monospace small" th:text="${u.username}"></td>
+                        <td class="small text-muted" th:text="${u.email != null ? u.email : '—'}"></td>
                         <td>
-                            <span th:class="${u.rol.name() == 'ADMIN' ? 'badge bg-primary' : 'badge bg-secondary'}"
+                            <span th:class="${u.rol.name() == 'ADMIN'    ? 'badge bg-primary'   :
+                                             u.rol.name() == 'RECEPCION' ? 'badge bg-info text-dark' :
+                                                                           'badge bg-secondary'}"
                                   th:text="${u.rol.descripcion}"></span>
                         </td>
                         <td>
                             <span th:class="${u.activo ? 'badge bg-success' : 'badge bg-danger'}"
                                   th:text="${u.activo ? 'Activo' : 'Inactivo'}"></span>
                         </td>
+                        <td class="small text-muted"
+                            th:text="${u.fechaCreacion != null ? #temporals.format(u.fechaCreacion, 'dd/MM/yyyy') : '—'}"></td>
+                        <td class="small text-muted"
+                            th:text="${u.ultimoAcceso != null ? #temporals.format(u.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}"></td>
                         <td class="text-end">
                             <a th:href="@{/usuarios/editar/{id}(id=${u.id})}"
                                class="btn btn-sm btn-outline-secondary me-1" title="Editar">
@@ -45,15 +56,9 @@
                             </a>
                             <form th:action="@{/usuarios/toggle-activo/{id}(id=${u.id})}" method="post" class="d-inline">
                                 <button type="submit"
-                                        th:class="${u.activo ? 'btn btn-sm btn-outline-warning me-1' : 'btn btn-sm btn-outline-success me-1'}"
-                                        th:title="${u.activo ? 'Desactivar' : 'Activar'}">
-                                    <i th:class="${u.activo ? 'bi bi-toggle-on' : 'bi bi-toggle-off'}"></i>
-                                </button>
-                            </form>
-                            <form th:action="@{/usuarios/eliminar/{id}(id=${u.id})}" method="post" class="d-inline"
-                                  onsubmit="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
+                                        th:class="${u.activo ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'}"
+                                        th:title="${u.activo ? 'Desactivar usuario' : 'Activar usuario'}">
+                                    <i th:class="${u.activo ? 'bi bi-person-slash' : 'bi bi-person-check'}"></i>
                                 </button>
                             </form>
                         </td>
@@ -66,6 +71,12 @@
             </div>
         </div>
     </div>
+
+    <p class="text-muted small mt-3">
+        <i class="bi bi-info-circle me-1"></i>
+        Los usuarios no se pueden eliminar para preservar el historial. Usá
+        <i class="bi bi-person-slash"></i> para desactivarlos.
+    </p>
 </main>
 </body>
 </html>

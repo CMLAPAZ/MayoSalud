@@ -8,7 +8,7 @@
         <h4 class="fw-bold mb-0" th:text="${esNuevo ? 'Nuevo usuario' : 'Editar usuario'}"></h4>
     </div>
 
-    <div class="card" style="max-width:520px;">
+    <div class="card" style="max-width:540px;">
         <div class="card-body">
             <form th:action="${esNuevo ? '/usuarios/nuevo' : '/usuarios/editar/' + usuario.id}"
                   method="post" th:object="${usuario}">
@@ -22,16 +22,19 @@
                                th:classappend="${#fields.hasErrors('nombreCompleto')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label fw-semibold">Nombre de usuario *</label>
-                        <input type="text" class="form-control" th:field="*{username}"
-                               placeholder="Ej: mgonzalez"
-                               autocomplete="off"
+                        <input type="text" class="form-control font-monospace" th:field="*{username}"
+                               placeholder="Ej: mgonzalez" autocomplete="off"
                                th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{username}"></div>
-                        <div class="form-text" th:if="${!esNuevo}">
-                            <i class="bi bi-info-circle"></i> Cambiar el nombre de usuario cerrará la sesión activa.
-                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               placeholder="correo@ejemplo.com"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{email}"></div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold">Rol *</label>
@@ -41,21 +44,32 @@
                                     th:text="${r.descripcion}"></option>
                         </select>
                         <div class="invalid-feedback" th:errors="*{rol}"></div>
+                        <div class="form-text">
+                            <strong>Admin</strong>: gestión total ·
+                            <strong>Recepción</strong>: pacientes y turnos ·
+                            <strong>Médico</strong>: consulta de agenda y fichas
+                        </div>
                     </div>
 
-                    <!-- Contraseña solo para nuevos usuarios -->
+                    <!-- Contraseña solo en creación -->
                     <div th:if="${esNuevo}" class="col-12">
                         <hr class="my-2"/>
                         <div th:if="${errorPassword}" class="alert alert-danger py-2 mb-3">
                             <i class="bi bi-exclamation-triangle me-1"></i>
                             <span th:text="${errorPassword}"></span>
                         </div>
-                        <label class="form-label fw-semibold">Contraseña *</label>
-                        <input type="password" class="form-control mb-2" name="passwordNuevo"
-                               placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
-                        <label class="form-label fw-semibold">Confirmar contraseña *</label>
-                        <input type="password" class="form-control" name="passwordConfirm"
-                               placeholder="Repetir contraseña" autocomplete="new-password"/>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Contraseña *</label>
+                                <input type="password" class="form-control" name="passwordNuevo"
+                                       placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Confirmar contraseña *</label>
+                                <input type="password" class="form-control" name="passwordConfirm"
+                                       placeholder="Repetir contraseña" autocomplete="new-password"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

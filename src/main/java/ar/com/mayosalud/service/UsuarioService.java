@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 
-/** Gestión de usuarios: altas, bajas, modificaciones, cambio de contraseña y toggle de estado. */
+/** Gestión de usuarios: altas, modificaciones, cambio de contraseña y activación/desactivación. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -29,34 +30,24 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
     }
 
-    public Usuario guardar(Usuario usuario) {
-        boolean usernameEnUso = usuarioRepository.existsByUsernameAndIdNot(
-                usuario.getUsername(), usuario.getId() == null ? -1L : usuario.getId());
-        if (usernameEnUso) {
-            throw new RuntimeException("El nombre de usuario '" + usuario.getUsername() + "' ya está en uso.");
-        }
-        return usuarioRepository.save(usuario);
-    }
-
     /** Crea un usuario nuevo codificando su contraseña en texto plano. */
     public Usuario crear(Usuario usuario, String passwordPlano) {
-        boolean usernameEnUso = usuarioRepository.existsByUsername(usuario.getUsername());
-        if (usernameEnUso) {
+        if (usuarioRepository.existsByUsername(usuario.getUsername())) {
             throw new RuntimeException("El nombre de usuario '" + usuario.getUsername() + "' ya está en uso.");
         }
         usuario.setPassword(passwordEncoder.encode(passwordPlano));
         return usuarioRepository.save(usuario);
     }
 
-    /** Actualiza datos de un usuario existente sin tocar la contraseña. */
+    /** Actualiza datos de un usuario existente sin modificar su contraseña. */
     public Usuario actualizar(Usuario usuario) {
         Usuario existente = buscarPorId(usuario.getId());
-        boolean usernameEnUso = usuarioRepository.existsByUsernameAndIdNot(usuario.getUsername(), usuario.getId());
-        if (usernameEnUso) {
+        if (usuarioRepository.existsByUsernameAndIdNot(usuario.getUsername(), usuario.getId())) {
             throw new RuntimeException("El nombre de usuario '" + usuario.getUsername() + "' ya está en uso.");
         }
         existente.setUsername(usuario.getUsername());
         existente.setNombreCompleto(usuario.getNombreCompleto());
+        existente.setEmail(usuario.getEmail());
         existente.setRol(usuario.getRol());
         return usuarioRepository.save(existente);
     }
@@ -67,14 +58,19 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
+    /** Activa o desactiva el usuario. No se permite eliminar usuarios con historial. */
     public void toggleActivo(Long id) {
         Usuario usuario = buscarPorId(id);
         usuario.setActivo(!usuario.isActivo());
         usuarioRepository.save(usuario);
     }
 
-    public void eliminar(Long id) {
-        usuarioRepository.deleteById(id);
+    /** Registra la fecha y hora del último acceso exitoso. */
+    public void registrarAcceso(String username) {
+        usuarioRepository.findByUsername(username).ifPresent(u -> {
+            u.setUltimoAcceso(LocalDateTime.now());
+            usuarioRepository.save(u);
+        });
     }
 
     /** Crea el usuario admin inicial si no existe ningún usuario en la base. */

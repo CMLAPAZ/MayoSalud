@@ -10,13 +10,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
-/** Configura autenticación desde BD, autorización por roles, sesión de 30 min y filtro anti fuerza bruta. */
+/**
+ * Configura autenticación desde BD, autorización por rol (ADMIN / RECEPCION / MEDICO),
+ * sesión de 30 min y filtro anti fuerza bruta pre-login.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class SecurityConfig {
     private final CustomAuthSuccessHandler authSuccessHandler;
     private final LoginAttemptService loginAttemptService;
     private final UsuarioDetailsService usuarioDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,11 +50,25 @@ public class SecurityConfig {
             )
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
+                // Recursos públicos
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
-                .requestMatchers("/auditoria/**").hasRole("ADMIN")
-                .requestMatchers("/feriados/**").hasRole("ADMIN")
-                .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                // Solo ADMIN
+                .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
+                // ADMIN + RECEPCION (MEDICO no gestiona médicos)
+                .requestMatchers("/medicos/**").hasAnyRole("ADMIN", "RECEPCION")
+                // ADMIN + RECEPCION: escritura sobre pacientes y turnos
+                .requestMatchers(
+                    "/pacientes/nuevo", "/pacientes/guardar",
+                    "/pacientes/editar/**", "/pacientes/eliminar/**",
+                    "/pacientes/consentimiento/**"
+                ).hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(
+                    "/turnos/nuevo", "/turnos/guardar",
+                    "/turnos/editar/**", "/turnos/eliminar/**",
+                    "/turnos/estado/**"
+                ).hasAnyRole("ADMIN", "RECEPCION")
+                // Todo lo demás requiere autenticación (MEDICO puede ver agenda y ficha de paciente)
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -77,13 +94,8 @@ public class SecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(usuarioDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

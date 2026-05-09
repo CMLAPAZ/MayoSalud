@@ -154,7 +154,7 @@
                     <i class="bi bi-people"></i> Pacientes
                 </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/medicos') ? 'active' : ''}" href="/medicos">
                     <i class="bi bi-person-badge"></i> Médicos
                 </a>

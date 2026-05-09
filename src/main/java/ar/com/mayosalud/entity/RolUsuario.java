@@ -3,7 +3,8 @@ package ar.com.mayosalud.entity;
 /** Roles disponibles para los usuarios del sistema. */
 public enum RolUsuario {
     ADMIN("Administrador"),
-    RECEPCION("Recepción");
+    RECEPCION("Recepción"),
+    MEDICO("Médico");
 
     private final String descripcion;
 

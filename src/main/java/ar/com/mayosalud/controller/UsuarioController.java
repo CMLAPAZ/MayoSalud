@@ -14,7 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** ABM de usuarios del sistema — acceso restringido a ADMIN. */
+/** ABM de usuarios del sistema — acceso restringido a ADMIN. Los usuarios nunca se eliminan físicamente. */
 @Controller
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
@@ -42,7 +42,6 @@ public class UsuarioController {
                         BindingResult result,
                         @RequestParam String passwordNuevo,
                         @RequestParam String passwordConfirm,
-                        @AuthenticationPrincipal UserDetails admin,
                         Model model,
                         RedirectAttributes redirectAttrs) {
         model.addAttribute("roles", RolUsuario.values());
@@ -132,35 +131,22 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
+    /** Activa o desactiva el usuario. Nunca se elimina para preservar el historial. */
     @PostMapping("/toggle-activo/{id}")
     public String toggleActivo(@PathVariable Long id,
                                @AuthenticationPrincipal UserDetails admin,
                                RedirectAttributes redirectAttrs) {
-        if (admin.getUsername().equals(usuarioService.buscarPorId(id).getUsername())) {
+        Usuario u = usuarioService.buscarPorId(id);
+        if (admin.getUsername().equals(u.getUsername())) {
             redirectAttrs.addFlashAttribute("error", "No podés desactivar tu propia cuenta.");
             return "redirect:/usuarios";
         }
         usuarioService.toggleActivo(id);
-        Usuario u = usuarioService.buscarPorId(id);
+        u = usuarioService.buscarPorId(id);
         auditoriaService.registrar("TOGGLE_USUARIO", "Usuario", id.toString(),
                 "Cambió estado a " + (u.isActivo() ? "ACTIVO" : "INACTIVO") + ": " + u.getUsername());
-        redirectAttrs.addFlashAttribute("exito", "Estado del usuario actualizado.");
-        return "redirect:/usuarios";
-    }
-
-    @PostMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id,
-                           @AuthenticationPrincipal UserDetails admin,
-                           RedirectAttributes redirectAttrs) {
-        Usuario u = usuarioService.buscarPorId(id);
-        if (admin.getUsername().equals(u.getUsername())) {
-            redirectAttrs.addFlashAttribute("error", "No podés eliminar tu propia cuenta.");
-            return "redirect:/usuarios";
-        }
-        usuarioService.eliminar(id);
-        auditoriaService.registrar("BAJA_USUARIO", "Usuario", id.toString(),
-                "Eliminó usuario: " + u.getUsername());
-        redirectAttrs.addFlashAttribute("exito", "Usuario eliminado correctamente.");
+        redirectAttrs.addFlashAttribute("exito",
+                "Usuario " + (u.isActivo() ? "activado" : "desactivado") + " correctamente.");
         return "redirect:/usuarios";
     }
 }

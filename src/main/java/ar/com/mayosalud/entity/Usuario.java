@@ -3,8 +3,10 @@ package ar.com.mayosalud.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
 
-/** Usuario del sistema con rol y estado activo/inactivo. */
+/** Usuario del sistema con rol, estado activo/inactivo y registro de accesos. */
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -30,6 +32,11 @@ public class Usuario {
     @Column(nullable = false, length = 100)
     private String nombreCompleto;
 
+    @Email(message = "El email no es válido")
+    @Size(max = 100)
+    @Column(length = 100)
+    private String email;
+
     @NotNull(message = "El rol es obligatorio")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -38,4 +45,10 @@ public class Usuario {
     @Column(nullable = false)
     @Builder.Default
     private boolean activo = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    private LocalDateTime ultimoAcceso;
 }
