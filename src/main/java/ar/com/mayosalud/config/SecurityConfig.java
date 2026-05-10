@@ -55,7 +55,8 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
                 // Nada de rutas internas debe quedar público
-                .requestMatchers("/pacientes/**", "/turnos/**", "/reportes/**").authenticated()
+                // (evitar permisos genéricos con authenticated(); definir explícitamente roles por área)
+                .requestMatchers("/pacientes/**", "/turnos/**", "/reportes/**").hasAnyRole("ADMIN", "RECEPCION", "MEDICO")
                 // Solo ADMIN
                 .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
                 // ADMIN + RECEPCION (MEDICO no gestiona médicos)
