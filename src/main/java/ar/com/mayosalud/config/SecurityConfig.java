@@ -84,6 +84,16 @@ public class SecurityConfig {
                 .failureHandler(authFailureHandler)
                 .permitAll()
             )
+            // Evitar fallos de POST desde navegadores/dispositivos que no incluyan el token CSRF.
+            // (Se limita a endpoints de Turnos porque son los que fallan desde el celular.)
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers(
+                    "/turnos/guardar",
+                    "/turnos/estado/**",
+                    "/turnos/eliminar/**"
+                )
+            )
+
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
