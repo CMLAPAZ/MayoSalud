@@ -54,25 +54,48 @@ public class TurnoService {
     }
 
     public Turno guardar(Turno turno) {
-        boolean existe = turnoRepository.existsByMedicoAndFechaAndHora(
+        // Evitar solapamientos: mismo médico, misma fecha, misma hora
+        boolean existeMismaHora = turnoRepository.existsByMedicoAndFechaAndHora(
                 turno.getMedico(), turno.getFecha(), turno.getHora());
-        if (existe && (turno.getId() == null)) {
+        if (existeMismaHora && (turno.getId() == null)) {
             throw new RuntimeException("El médico ya tiene un turno asignado en ese horario.");
         }
 
+        // Regla de distancia mínima (30 minutos) para el mismo profesional
+        // (se aplica siempre: no depende del estado)
         LocalDate fecha = turno.getFecha();
         if (fecha != null) {
-            // Regla de negocio: feriados y domingo no hay turnos.
             if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
                 throw new RuntimeException("No se pueden crear turnos los domingos.");
             }
             if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
                 throw new RuntimeException("No se pueden crear turnos en feriados.");
             }
+
+            List<Turno> turnosDelMedicoEseDia = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(
+                    turno.getMedico(), fecha);
+
+            // Si se edita un turno existente, ignorar el propio id
+            Long editingId = turno.getId();
+
+            for (Turno t : turnosDelMedicoEseDia) {
+                if (editingId != null && t.getId() != null && t.getId().equals(editingId)) {
+                    continue;
+                }
+
+                long minutosEntre = Math.abs(java.time.Duration.between(t.getHora().atDate(fecha),
+                                                                        turno.getHora().atDate(fecha)).toMinutes());
+
+                if (minutosEntre < 30) {
+                    throw new RuntimeException(
+                            "El médico ya tiene un turno a menos de 30 minutos. Debe existir una distancia mínima de 30 minutos entre turnos.");
+                }
+            }
         }
 
         return turnoRepository.save(turno);
     }
+
 
 
     public void cambiarEstado(Long id, EstadoTurno nuevoEstado) {
