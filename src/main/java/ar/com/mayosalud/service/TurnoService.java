@@ -1,5 +1,14 @@
 package ar.com.mayosalud.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ar.com.mayosalud.entity.EstadoTurno;
 import ar.com.mayosalud.entity.Feriado;
 import ar.com.mayosalud.entity.Medico;
@@ -8,13 +17,6 @@ import ar.com.mayosalud.entity.Turno;
 import ar.com.mayosalud.repository.FeriadoRepository;
 import ar.com.mayosalud.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /** Lógica de negocio para turnos: agenda diaria, validación de conflicto de horario y cambio de estado. */
 @Service
@@ -57,8 +59,21 @@ public class TurnoService {
         if (existe && (turno.getId() == null)) {
             throw new RuntimeException("El médico ya tiene un turno asignado en ese horario.");
         }
+
+        LocalDate fecha = turno.getFecha();
+        if (fecha != null) {
+            // Regla de negocio: feriados y domingo no hay turnos.
+            if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                throw new RuntimeException("No se pueden crear turnos los domingos.");
+            }
+            if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
+                throw new RuntimeException("No se pueden crear turnos en feriados.");
+            }
+        }
+
         return turnoRepository.save(turno);
     }
+
 
     public void cambiarEstado(Long id, EstadoTurno nuevoEstado) {
         Turno turno = buscarPorId(id);

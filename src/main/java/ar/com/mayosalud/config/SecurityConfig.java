@@ -1,10 +1,5 @@
 package ar.com.mayosalud.config;
 
-import ar.com.mayosalud.service.LoginAttemptService;
-import ar.com.mayosalud.service.UsuarioDetailsService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +9,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+
+import ar.com.mayosalud.service.LoginAttemptService;
+import ar.com.mayosalud.service.UsuarioDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Configura autenticación desde BD, autorización por rol (ADMIN / RECEPCION / MEDICO),
@@ -53,10 +54,14 @@ public class SecurityConfig {
                 // Recursos públicos
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
+                // Nada de rutas internas debe quedar público
+                .requestMatchers("/pacientes/**", "/turnos/**", "/reportes/**").authenticated()
                 // Solo ADMIN
                 .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
                 // ADMIN + RECEPCION (MEDICO no gestiona médicos)
                 .requestMatchers("/medicos/**").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers("/enfermeria/**", "/signos-vitales/**", "/indicaciones/**").hasAnyRole("ADMIN", "ENFERMERIA")
+
                 // ADMIN + RECEPCION: escritura sobre pacientes y turnos
                 .requestMatchers(
                     "/pacientes/nuevo", "/pacientes/guardar",
@@ -68,7 +73,8 @@ public class SecurityConfig {
                     "/turnos/editar/**", "/turnos/eliminar/**",
                     "/turnos/estado/**"
                 ).hasAnyRole("ADMIN", "RECEPCION")
-                // Todo lo demás requiere autenticación (MEDICO puede ver agenda y ficha de paciente)
+
+                // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
