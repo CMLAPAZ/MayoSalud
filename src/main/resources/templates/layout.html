@@ -149,7 +149,7 @@
                 </a>
             </li>
             <li><div class="nav-section">Gestión</div></li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/pacientes') ? 'active' : ''}" href="/pacientes">
                     <i class="bi bi-people"></i> Pacientes
                 </a>
