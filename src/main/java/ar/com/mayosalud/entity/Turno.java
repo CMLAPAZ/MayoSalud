@@ -68,6 +68,9 @@ public class Turno {
     @NotNull(message = "La duración es obligatoria")
     @Min(value = 15, message = "La duración mínima es 15 minutos")
     @Max(value = 60, message = "La duración máxima es 60 minutos")
-    @Column(nullable = false)
+    // En el esquema actual de DB puede no existir la columna con el nombre 'duracion_minutos'.
+    // Mapeamos explícitamente para que Hibernate genere SQL usando ese nombre.
+    @Column(name = "duracion_minutos", nullable = false)
     private Integer duracionMinutos;
+
 }
