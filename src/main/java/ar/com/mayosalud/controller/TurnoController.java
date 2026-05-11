@@ -1,19 +1,5 @@
 package ar.com.mayosalud.controller;
 
-import ar.com.mayosalud.entity.EstadoTurno;
-import ar.com.mayosalud.entity.Feriado;
-import ar.com.mayosalud.entity.Turno;
-import ar.com.mayosalud.service.MedicoService;
-import ar.com.mayosalud.service.PacienteService;
-import ar.com.mayosalud.service.TurnoService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +8,28 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import ar.com.mayosalud.dto.TurnosLibresResponse;
+import ar.com.mayosalud.entity.EstadoTurno;
+import ar.com.mayosalud.entity.Feriado;
+import ar.com.mayosalud.entity.Turno;
+import ar.com.mayosalud.service.MedicoService;
+import ar.com.mayosalud.service.PacienteService;
+import ar.com.mayosalud.service.TurnoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /** Gestiona la agenda de turnos: vista diaria, semanal, cambio de estado y CRUD. */
 @Controller
@@ -130,6 +138,17 @@ public class TurnoController {
         model.addAttribute("pacientes", pacienteService.listarActivos());
         model.addAttribute("estados", EstadoTurno.values());
         return "turno/form";
+    }
+
+    // JSON: horas libres para un médico y fecha (usado por turnos-libres.js)
+    @GetMapping("/libres")
+    public TurnosLibresResponse libres(
+            @RequestParam Long medicoId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam Integer duracionMinutos) {
+        var medico = medicoService.buscarPorId(medicoId);
+        var libres = turnoService.calcularTurnosLibres(medico, fecha, duracionMinutos);
+        return new TurnosLibresResponse(libres);
     }
 
     @GetMapping("/editar/{id}")

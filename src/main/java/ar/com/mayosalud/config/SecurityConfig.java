@@ -54,28 +54,23 @@ public class SecurityConfig {
                 // Recursos públicos
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
-                // Nada de rutas internas debe quedar público
-                // (evitar permisos genéricos con authenticated(); definir explícitamente roles por área)
-                .requestMatchers("/pacientes/**", "/turnos/**", "/reportes/**").hasAnyRole("ADMIN", "RECEPCION", "MEDICO")
-                // Solo ADMIN
+
+                // ABM completo para ADMIN
+                .requestMatchers("/pacientes/**").hasRole("ADMIN")
+                .requestMatchers("/medicos/**").hasRole("ADMIN")
+
+                // Turnos: ENFERMERIA puede ver (GET), pero no cargar/editar/cancelar (POST)
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
+
+                // Pacientes: ENFERMERIA solo ve (GET). ABM completo solo ADMIN.
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/pacientes/**").hasRole("ADMIN")
+
+                // Administración extra solo ADMIN
                 .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
-                // ADMIN + RECEPCION (MEDICO no gestiona médicos)
-                .requestMatchers("/medicos/**").hasAnyRole("ADMIN", "RECEPCION")
-                .requestMatchers("/enfermeria/**", "/signos-vitales/**", "/indicaciones/**").hasAnyRole("ADMIN", "ENFERMERIA")
 
-                // ADMIN + RECEPCION: escritura sobre pacientes y turnos
-                .requestMatchers(
-                    "/pacientes/nuevo", "/pacientes/guardar",
-                    "/pacientes/editar/**", "/pacientes/eliminar/**",
-                    "/pacientes/consentimiento/**"
-                ).hasAnyRole("ADMIN", "RECEPCION")
-                .requestMatchers(
-                    "/turnos/nuevo", "/turnos/guardar",
-                    "/turnos/editar/**", "/turnos/eliminar/**",
-                    "/turnos/estado/**"
-                ).hasAnyRole("ADMIN", "RECEPCION")
-
-                // Todo lo demás requiere autenticación
+                // Resto: autenticación requerida
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -85,7 +80,6 @@ public class SecurityConfig {
                 .permitAll()
             )
             // Evitar fallos de POST desde navegadores/dispositivos que no incluyan el token CSRF.
-            // (Se limita a endpoints de Turnos porque son los que fallan desde el celular.)
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(
                     "/turnos/guardar",
@@ -93,7 +87,6 @@ public class SecurityConfig {
                     "/turnos/eliminar/**"
                 )
             )
-
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
@@ -120,3 +113,4 @@ public class SecurityConfig {
         return new HttpSessionEventPublisher();
     }
 }
+

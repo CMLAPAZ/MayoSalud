@@ -54,15 +54,6 @@ public class TurnoService {
     }
 
     public Turno guardar(Turno turno) {
-        // Evitar solapamientos: mismo médico, misma fecha, misma hora
-        boolean existeMismaHora = turnoRepository.existsByMedicoAndFechaAndHora(
-                turno.getMedico(), turno.getFecha(), turno.getHora());
-        if (existeMismaHora && (turno.getId() == null)) {
-            throw new RuntimeException("El médico ya tiene un turno asignado en ese horario.");
-        }
-
-        // Regla de distancia mínima (30 minutos) para el mismo profesional
-        // (se aplica siempre: no depende del estado)
         LocalDate fecha = turno.getFecha();
         if (fecha != null) {
             if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
@@ -71,11 +62,22 @@ public class TurnoService {
             if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
                 throw new RuntimeException("No se pueden crear turnos en feriados.");
             }
+        }
 
-            List<Turno> turnosDelMedicoEseDia = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(
-                    turno.getMedico(), fecha);
+        // Validación de duración permitida
+        if (turno.getDuracionMinutos() == null
+                || !(turno.getDuracionMinutos() == 15 || turno.getDuracionMinutos() == 30
+                     || turno.getDuracionMinutos() == 45 || turno.getDuracionMinutos() == 60)) {
+            throw new RuntimeException("Duración inválida. Permitidas: 15/30/45/60 minutos.");
+        }
 
-            // Si se edita un turno existente, ignorar el propio id
+        // Evitar solapamientos por intervalo: mismo médico y misma fecha
+        if (turno.getMedico() != null && fecha != null && turno.getHora() != null) {
+            List<Turno> turnosDelMedicoEseDia = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(turno.getMedico(), fecha);
+
+            java.time.LocalDateTime nuevoInicio = turno.getHora().atDate(fecha);
+            java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(turno.getDuracionMinutos());
+
             Long editingId = turno.getId();
 
             for (Turno t : turnosDelMedicoEseDia) {
@@ -83,12 +85,13 @@ public class TurnoService {
                     continue;
                 }
 
-                long minutosEntre = Math.abs(java.time.Duration.between(t.getHora().atDate(fecha),
-                                                                        turno.getHora().atDate(fecha)).toMinutes());
+                java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
+                int dur = (t.getDuracionMinutos() == null ? 30 : t.getDuracionMinutos());
+                java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(dur);
 
-                if (minutosEntre < 30) {
-                    throw new RuntimeException(
-                            "El médico ya tiene un turno a menos de 30 minutos. Debe existir una distancia mínima de 30 minutos entre turnos.");
+                boolean solapa = nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
+                if (solapa) {
+                    throw new RuntimeException("El médico tiene un turno que se solapa con el horario seleccionado.");
                 }
             }
         }
@@ -112,6 +115,63 @@ public class TurnoService {
     @Transactional(readOnly = true)
     public Optional<Feriado> getFeriado(LocalDate fecha) {
         return feriadoRepository.findByFechaAndActivoTrue(fecha);
+    }
+
+    /**
+     * Calcula turnos libres para un médico y fecha, con grilla en pasos de 30 minutos.
+     *
+     * Nota: se asume que el rango permitido es el que define el frontend (slots fijos).
+     * Si la fecha es domingo o feriado, devuelve lista vacía.
+     */
+    @Transactional(readOnly = true)
+    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha, Integer duracionMinutos) {
+        if (fecha == null || medico == null) return List.of();
+
+        if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            return List.of();
+        }
+        if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
+            return List.of();
+        }
+
+        if (duracionMinutos == null) return List.of();
+        // Validación simple para evitar requests manipulados
+        if (!(duracionMinutos == 15 || duracionMinutos == 30 || duracionMinutos == 45 || duracionMinutos == 60)) {
+            return List.of();
+        }
+
+        // Slots solicitados por el usuario (inicio del turno cada 30 min)
+        List<java.time.LocalTime> slots = List.of(
+                java.time.LocalTime.of(8, 0),
+                java.time.LocalTime.of(8, 30),
+                java.time.LocalTime.of(9, 0),
+                java.time.LocalTime.of(9, 30),
+                java.time.LocalTime.of(10, 0),
+                java.time.LocalTime.of(10, 30),
+                java.time.LocalTime.of(11, 0),
+                java.time.LocalTime.of(11, 30),
+                java.time.LocalTime.of(12, 0)
+        );
+
+        List<Turno> turnosExistentes = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(medico, fecha);
+
+        return slots.stream()
+                .filter(slotInicio -> {
+                    java.time.LocalDateTime nuevoInicio = slotInicio.atDate(fecha);
+                    java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracionMinutos);
+
+                    // Libre si NO hay solapamiento con ninguno existente
+                    return turnosExistentes.stream().noneMatch(t -> {
+                        java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
+                        int dur = (t.getDuracionMinutos() == null ? 30 : t.getDuracionMinutos());
+                        java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(dur);
+
+                        // Solapa si inicio < otroFin && fin > otroInicio
+                        return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
+                    });
+                })
+                .map(t -> String.format("%02d:%02d", t.getHour(), t.getMinute()))
+                .toList();
     }
 
     /** Devuelve los feriados activos de un rango de fechas indexados por fecha. */

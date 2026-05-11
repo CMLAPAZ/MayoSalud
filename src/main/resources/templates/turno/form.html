@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Médico *</label>
-                        <select class="form-select" th:field="*{medico.id}"
+                        <select class="form-select" id="medicoIdSelect" th:field="*{medico.id}"
                                 th:classappend="${#fields.hasErrors('medico')} ? 'is-invalid'">
                             <option value="">-- Seleccionar médico --</option>
                             <option th:each="m : ${medicos}" th:value="${m.id}"
@@ -42,15 +42,28 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha *</label>
-                        <input type="date" class="form-control" th:field="*{fecha}"
+                        <input type="date" id="fechaInput" class="form-control" th:field="*{fecha}"
                                th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{fecha}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Hora *</label>
-                        <input type="time" class="form-control" th:field="*{hora}"
-                               th:classappend="${#fields.hasErrors('hora')} ? 'is-invalid'"/>
+                        <input type="hidden" id="horaHiddenInput" th:field="*{hora}" th:classappend="${#fields.hasErrors('hora')} ? 'is-invalid'"/>
+
+                        <div id="horaLibresContainer" class="mt-2"></div>
+
                         <div class="invalid-feedback" th:errors="*{hora}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Duración *</label>
+                        <select class="form-select" th:field="*{duracionMinutos}"
+                                th:classappend="${#fields.hasErrors('duracionMinutos')} ? 'is-invalid'">
+                            <option th:value="15">15 min</option>
+                            <option th:value="30">30 min</option>
+                            <option th:value="45">45 min</option>
+                            <option th:value="60">60 min</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{duracionMinutos}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Estado</label>
@@ -59,6 +72,7 @@
                                     th:text="${e.descripcion}"></option>
                         </select>
                     </div>
+
                     <div class="col-12">
                         <label class="form-label fw-semibold">Motivo de consulta</label>
                         <input type="text" class="form-control" th:field="*{motivo}"
@@ -73,6 +87,8 @@
                     <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar</button>
                     <a href="/turnos" class="btn btn-outline-secondary">Cancelar</a>
                 </div>
+
+                <script th:src="@{/js/turnos-libres.js}"></script>
             </form>
         </div>
     </div>
