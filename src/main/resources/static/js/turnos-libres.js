@@ -10,11 +10,10 @@
   async function loadLibres() {
     const medicoId = document.getElementById('medicoIdSelect')?.value;
     const fecha = document.getElementById('fechaInput')?.value;
-    const duracionMinutos = document.querySelector('[name="duracionMinutos"]')?.value;
+    if (!medicoId || !fecha) return;
 
-    if (!medicoId || !fecha || !duracionMinutos) return;
+    const resp = await fetch(`/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}`);
 
-    const resp = await fetch(`/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}&duracionMinutos=${encodeURIComponent(duracionMinutos)}`);
     if (!resp.ok) return;
 
     const json = await resp.json();

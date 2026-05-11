@@ -64,19 +64,17 @@ public class TurnoService {
             }
         }
 
-        // Validación de duración permitida
-        if (turno.getDuracionMinutos() == null
-                || !(turno.getDuracionMinutos() == 15 || turno.getDuracionMinutos() == 30
-                     || turno.getDuracionMinutos() == 45 || turno.getDuracionMinutos() == 60)) {
-            throw new RuntimeException("Duración inválida. Permitidas: 15/30/45/60 minutos.");
-        }
+        // Duración fija desde código (sin columna en DB): 30 minutos
+        final int duracionMinutos = 30;
 
         // Evitar solapamientos por intervalo: mismo médico y misma fecha
+
         if (turno.getMedico() != null && fecha != null && turno.getHora() != null) {
             List<Turno> turnosDelMedicoEseDia = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(turno.getMedico(), fecha);
 
             java.time.LocalDateTime nuevoInicio = turno.getHora().atDate(fecha);
-            java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(turno.getDuracionMinutos());
+            java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(30);
+
 
             Long editingId = turno.getId();
 
@@ -86,8 +84,9 @@ public class TurnoService {
                 }
 
                 java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
-                int dur = (t.getDuracionMinutos() == null ? 30 : t.getDuracionMinutos());
-                java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(dur);
+                // Duración fija: 30 minutos
+                java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(30);
+
 
                 boolean solapa = nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
                 if (solapa) {
@@ -124,7 +123,7 @@ public class TurnoService {
      * Si la fecha es domingo o feriado, devuelve lista vacía.
      */
     @Transactional(readOnly = true)
-    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha, Integer duracionMinutos) {
+    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha) {
         if (fecha == null || medico == null) return List.of();
 
         if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
@@ -134,11 +133,8 @@ public class TurnoService {
             return List.of();
         }
 
-        if (duracionMinutos == null) return List.of();
-        // Validación simple para evitar requests manipulados
-        if (!(duracionMinutos == 15 || duracionMinutos == 30 || duracionMinutos == 45 || duracionMinutos == 60)) {
-            return List.of();
-        }
+        final int duracionMinutos = 30;
+
 
         // Slots solicitados por el usuario (inicio del turno cada 30 min)
         List<java.time.LocalTime> slots = List.of(
@@ -163,8 +159,9 @@ public class TurnoService {
                     // Libre si NO hay solapamiento con ninguno existente
                     return turnosExistentes.stream().noneMatch(t -> {
                         java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
-                        int dur = (t.getDuracionMinutos() == null ? 30 : t.getDuracionMinutos());
-                        java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(dur);
+                        // Duración fija: 30 minutos
+                        java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(30);
+
 
                         // Solapa si inicio < otroFin && fin > otroInicio
                         return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);

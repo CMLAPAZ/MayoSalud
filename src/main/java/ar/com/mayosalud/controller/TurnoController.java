@@ -144,12 +144,12 @@ public class TurnoController {
     @GetMapping("/libres")
     public TurnosLibresResponse libres(
             @RequestParam Long medicoId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
-            @RequestParam Integer duracionMinutos) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         var medico = medicoService.buscarPorId(medicoId);
-        var libres = turnoService.calcularTurnosLibres(medico, fecha, duracionMinutos);
+        var libres = turnoService.calcularTurnosLibres(medico, fecha);
         return new TurnosLibresResponse(libres);
     }
+
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {

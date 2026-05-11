@@ -54,17 +54,7 @@
 
                         <div class="invalid-feedback" th:errors="*{hora}"></div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Duración *</label>
-                        <select class="form-select" th:field="*{duracionMinutos}"
-                                th:classappend="${#fields.hasErrors('duracionMinutos')} ? 'is-invalid'">
-                            <option th:value="15">15 min</option>
-                            <option th:value="30">30 min</option>
-                            <option th:value="45">45 min</option>
-                            <option th:value="60">60 min</option>
-                        </select>
-                        <div class="invalid-feedback" th:errors="*{duracionMinutos}"></div>
-                    </div>
+
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Estado</label>
                         <select class="form-select" th:field="*{estado}">
