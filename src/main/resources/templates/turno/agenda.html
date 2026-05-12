@@ -173,8 +173,9 @@
                         <a th:href="@{/pacientes/ver/{id}(id=${turno.paciente.id})}"
                            class="turno-paciente text-decoration-none"
                            th:text="${turno.paciente.nombreCompleto}"></a>
-                        <span th:class="'badge badge-estado-' + ${turno.estado.name()}"
-                              th:text="${turno.estado.descripcion}"></span>
+                    <span th:class="'badge badge-estado-' + ${turno.estado.name()}"
+                          th:text="${turno.estado != null ? turno.estado.descripcion : ''}"></span>
+
                     </div>
                     <div class="turno-medico">
                         <i class="bi bi-person-badge me-1"></i>
@@ -190,7 +191,19 @@
 
                 <!-- Acciones -->
                 <div class="d-flex align-items-center gap-2 flex-shrink-0">
+
+                    <!-- ENFERMERIA: acción clínica únicamente -->
+                    <a sec:authorize="hasRole('ENFERMERIA')"
+                       th:if="${turno.paciente != null}"
+                       th:href="@{/clinica/pacientes/ver/{id}(id=${turno.paciente.id})}"
+                       class="btn btn-sm btn-outline-primary" title="Ficha clínica">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </a>
+                    <span sec:authorize="hasRole('ENFERMERIA')" th:if="${turno.paciente == null}" class="text-muted" style="font-size:.78rem;">Sin paciente</span>
+
                     <form th:action="@{/turnos/estado/{id}(id=${turno.id})}" method="post" class="d-inline" sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
+
+
                         <input type="hidden" name="fechaRedirect" th:value="${#temporals.format(fecha, 'yyyy-MM-dd')}"/>
                         <select name="estado" class="form-select form-select-sm"
                                 style="width:130px; font-size:.78rem;"
