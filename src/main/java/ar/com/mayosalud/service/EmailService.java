@@ -35,7 +35,7 @@ public class EmailService {
         try {
             MimeMessage msg = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
-            helper.setFrom(remitente);
+            helper.setFrom(remitente, "Clínica Mayo S.R.L.");
             helper.setTo(destino);
             helper.setSubject("Recordatorio de turno — Clínica Mayo");
             helper.setText(buildHtml(turno), true);
@@ -68,7 +68,10 @@ public class EmailService {
               <div style="background:#1E3A4F;padding:22px 24px;text-align:center;">
                 <p style="color:#fff;font-size:20px;font-weight:700;margin:0;">Clínica Mayo S.R.L.</p>
                 <p style="color:rgba(255,255,255,.65);font-size:13px;margin:4px 0 0;">
-                  La Paz, Entre Ríos
+                  Tu salud, nuestro compromiso.
+                </p>
+                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:4px 0 0;">
+                  La Paz, Entre Ríos &nbsp;·&nbsp; Tel: 422237 &nbsp;·&nbsp; WhatsApp: 3437 402962
                 </p>
               </div>
 
@@ -113,6 +116,7 @@ public class EmailService {
                           padding:14px 24px;text-align:center;">
                 <p style="color:#9CA3AF;font-size:11px;margin:0;line-height:1.6;">
                   Clínica Mayo S.R.L. — La Paz, Entre Ríos<br>
+                  Tel: 422237 &nbsp;·&nbsp; WhatsApp: 3437 402962<br>
                   Este es un mensaje automático, por favor no responda este correo.
                 </p>
               </div>
