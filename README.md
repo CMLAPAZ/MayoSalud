@@ -302,4 +302,20 @@ El sistema implementa los requisitos de:
 
 ---
 
+---
+
+## Autoría
+
+Diseño funcional, análisis y desarrollo:
+
+**Ana Carolina Martin**  
+**CM Vector Systems**
+
+© 2026 Ana Carolina Martin. Todos los derechos reservados.
+
+El sistema fue desarrollado por Ana Carolina Martin para uso autorizado en Clínica Mayo / MayoSalud, salvo acuerdo escrito diferente entre las partes.  
+La titularidad intelectual del desarrollo corresponde a su autora, salvo cesión o acuerdo escrito específico.
+
+---
+
 *MayoSalud v1.0.0 · Clínica Mayo S.R.L.*
