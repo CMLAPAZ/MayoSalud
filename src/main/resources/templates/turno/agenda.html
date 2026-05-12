@@ -190,7 +190,7 @@
 
                 <!-- Acciones -->
                 <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                    <form th:action="@{/turnos/estado/{id}(id=${turno.id})}" method="post" class="d-inline">
+                    <form th:action="@{/turnos/estado/{id}(id=${turno.id})}" method="post" class="d-inline" sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
                         <input type="hidden" name="fechaRedirect" th:value="${#temporals.format(fecha, 'yyyy-MM-dd')}"/>
                         <select name="estado" class="form-select form-select-sm"
                                 style="width:130px; font-size:.78rem;"
@@ -201,6 +201,7 @@
                                     th:selected="${e == turno.estado}"></option>
                         </select>
                     </form>
+
                     <a th:href="@{/turnos/editar/{id}(id=${turno.id})}"
                        class="btn btn-sm btn-outline-secondary" title="Editar"
                        sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
