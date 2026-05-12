@@ -207,7 +207,9 @@
                          th:text="${#temporals.format(t.hora, 'HH:mm')}"></div>
                     <a class="semana-turno-pac"
                        th:href="@{/turnos/editar/{id}(id=${t.id})}"
-                       th:text="${t.paciente.nombreCompleto}"></a>
+                       th:text="${t.paciente.nombreCompleto}"
+                       sec:authorize="hasAnyRole('ADMIN','RECEPCION')"></a>
+
                     <div class="semana-turno-med"
                          th:text="${t.medico.nombreCompleto}"></div>
                 </div>

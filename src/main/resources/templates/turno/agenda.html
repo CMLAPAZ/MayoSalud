@@ -202,9 +202,11 @@
                         </select>
                     </form>
                     <a th:href="@{/turnos/editar/{id}(id=${turno.id})}"
-                       class="btn btn-sm btn-outline-secondary" title="Editar">
+                       class="btn btn-sm btn-outline-secondary" title="Editar"
+                       sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
                         <i class="bi bi-pencil"></i>
                     </a>
+
                     <form th:action="@{/turnos/eliminar/{id}(id=${turno.id})}" method="post" class="d-inline"
                           onsubmit="return confirm('¿Eliminar este turno?')">
                         <input type="hidden" name="fechaRedirect" th:value="${#temporals.format(fecha, 'yyyy-MM-dd')}"/>

@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+
 /**
  * Configura autenticación desde BD, autorización por rol (ADMIN / RECEPCION / MEDICO),
  * sesión de 30 min y filtro anti fuerza bruta pre-login.
@@ -59,9 +60,14 @@ public class SecurityConfig {
                 .requestMatchers("/pacientes/**").hasRole("ADMIN")
                 .requestMatchers("/medicos/**").hasRole("ADMIN")
 
-                // Turnos: ENFERMERIA puede ver (GET), pero no cargar/editar/cancelar (POST)
+                // Turnos: ENFERMERIA solo puede ver la agenda (GET /turnos/**),
+                // pero no puede acceder a la edición (GET /turnos/editar/**).
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/editar/**").hasAnyRole("ADMIN", "RECEPCION")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
+
+
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
+
 
                 // Pacientes administrativo: solo ADMIN y RECEPCION (ABM)
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION")
