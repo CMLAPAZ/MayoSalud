@@ -74,10 +74,23 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Obra Social</label>
-                        <select class="form-select" th:field="*{obraSocial}">
-                            <option th:each="os : ${obrasSociales}" th:value="${os.name()}"
-                                    th:text="${os.descripcion}"></option>
-                        </select>
+                        <div class="position-relative">
+                            <input type="text" id="obraSearch" class="form-control"
+                                   autocomplete="off" placeholder="Buscar obra social..."
+                                   th:value="${paciente.obraSocial != null ? paciente.obraSocial.descripcion : ''}"/>
+                            <input type="hidden" name="obraSocial" id="obraSocialHidden"
+                                   th:value="${paciente.obraSocial != null ? paciente.obraSocial.name() : ''}"/>
+                            <div id="obraDropdown"
+                                 style="display:none;position:absolute;z-index:1050;width:100%;
+                                        background:#fff;border:1px solid #dee2e6;border-radius:8px;
+                                        max-height:220px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.12);">
+                                <div th:each="os : ${obrasSociales}"
+                                     class="obra-opt px-3 py-2"
+                                     style="cursor:pointer;font-size:13.5px;"
+                                     th:attr="data-value=${os.name()},data-label=${os.descripcion}"
+                                     th:text="${os.descripcion}"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nro. Afiliado</label>
@@ -112,6 +125,48 @@
             </form>
         </div>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var input    = document.getElementById('obraSearch');
+        var hidden   = document.getElementById('obraSocialHidden');
+        var dropdown = document.getElementById('obraDropdown');
+        if (!input) return;
+        var opts = Array.from(dropdown.querySelectorAll('.obra-opt'));
+
+        function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+        function show() { dropdown.style.display = 'block'; }
+        function hide() { dropdown.style.display = 'none'; }
+
+        input.addEventListener('focus', function () {
+            opts.forEach(function(o){ o.style.display=''; });
+            show();
+        });
+
+        input.addEventListener('input', function () {
+            var q = norm(this.value.trim());
+            hidden.value = '';
+            opts.forEach(function(o){
+                o.style.display = (!q || norm(o.dataset.label).startsWith(q)) ? '' : 'none';
+            });
+            show();
+        });
+
+        opts.forEach(function(o) {
+            o.addEventListener('mouseover', function(){ this.style.background='#f0f4f8'; });
+            o.addEventListener('mouseout',  function(){ this.style.background=''; });
+            o.addEventListener('mousedown', function(e){
+                e.preventDefault();
+                input.value  = this.dataset.label;
+                hidden.value = this.dataset.value;
+                hide();
+            });
+        });
+
+        document.addEventListener('click', function(e){
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) hide();
+        });
+    });
+    </script>
 </main>
 </body>
 </html>
