@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::main}, 'Ficha clínica')}">
+<body>
+<main>
+
+    <!-- Encabezado paciente -->
+    <div class="d-flex align-items-center mb-4">
+        <a th:href="@{/clinica/pacientes}" class="btn btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h4 class="fw-bold mb-0" th:text="${paciente.nombreCompleto}"></h4>
+            <small class="text-muted">
+                Ficha clínica &middot; DNI: <span th:text="${paciente.dni}"></span>
+            </small>
+        </div>
+    </div>
+
+    <!-- Datos básicos del paciente -->
+    <div class="card mb-4">
+        <div class="card-header bg-transparent fw-semibold">
+            <i class="bi bi-person-vcard me-1"></i> Datos del paciente
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Fecha nac.</dt>
+                        <dd class="col-7" th:text="${#temporals.format(paciente.fechaNacimiento, 'dd/MM/yyyy')}"></dd>
+
+                        <dt class="col-5 text-muted">Sexo</dt>
+                        <dd class="col-7" th:text="${paciente.sexo}"></dd>
+
+                        <dt class="col-5 text-muted">Teléfono</dt>
+                        <dd class="col-7" th:text="${paciente.telefono}"></dd>
+
+                        <dt class="col-5 text-muted">Email</dt>
+                        <dd class="col-7" th:text="${paciente.email}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Dirección</dt>
+                        <dd class="col-7" th:text="${paciente.direccion}"></dd>
+
+                        <dt class="col-5 text-muted">Obra social</dt>
+                        <dd class="col-7" th:text="${paciente.obraSocial?.descripcion}"></dd>
+
+                        <dt class="col-5 text-muted">Nro. afiliado</dt>
+                        <dd class="col-7" th:text="${paciente.nroAfiliado}"></dd>
+                    </dl>
+
+                    <div th:if="${paciente.antecedentes}" class="mt-3">
+                        <div class="text-muted small fw-semibold mb-1">Antecedentes / Alergias</div>
+                        <div class="bg-light rounded p-2 small" th:text="${paciente.antecedentes}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registro de evento clínico -->
+    <div class="card mb-4">
+        <div class="card-header bg-transparent">
+            <div class="fw-semibold mb-2"><i class="bi bi-plus-circle me-1"></i> Registrar evento clínico</div>
+            <ul class="nav nav-tabs card-header-tabs" id="tabEventos" role="tablist">
+                <li class="nav-item" role="presentation" sec:authorize="hasAnyRole('ADMIN', 'ENFERMERIA')">
+                    <button class="nav-link active" id="tab-sv-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-sv" type="button" role="tab">
+                        <i class="bi bi-heart-pulse me-1"></i>Signos vitales
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation" sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <button class="nav-link" id="tab-ev-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-ev" type="button" role="tab">
+                        <i class="bi bi-journal-medical me-1"></i>Evolución médica
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation" sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <button class="nav-link" id="tab-est-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-est" type="button" role="tab">
+                        <i class="bi bi-clipboard2-check me-1"></i>Estudio
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="tabEventosContent">
+
+                <!-- TAB: Signos vitales -->
+                <div class="tab-pane fade show active" id="tab-sv" role="tabpanel"
+                     sec:authorize="hasAnyRole('ADMIN', 'ENFERMERIA')">
+                    <form th:action="@{/clinica/pacientes/ver/{id}/signos-vitales(id=${paciente.id})}"
+                          method="post">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Temperatura (°C)</label>
+                                <input type="number" name="temperatura" class="form-control form-control-sm"
+                                       step="0.1" min="30" max="43" placeholder="36.5">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Presión sistólica</label>
+                                <input type="number" name="presionSistolica" class="form-control form-control-sm"
+                                       min="50" max="300" placeholder="120">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Presión diastólica</label>
+                                <input type="number" name="presionDiastolica" class="form-control form-control-sm"
+                                       min="30" max="200" placeholder="80">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Pulso (lat/min)</label>
+                                <input type="number" name="pulsoFrecuencia" class="form-control form-control-sm"
+                                       min="20" max="300" placeholder="72">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Saturación O₂ (%)</label>
+                                <input type="number" name="saturacionOxigeno" class="form-control form-control-sm"
+                                       step="0.1" min="50" max="100" placeholder="98">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Peso (kg)</label>
+                                <input type="number" name="peso" class="form-control form-control-sm"
+                                       step="0.1" min="1" max="400" placeholder="70.0">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Talla (cm)</label>
+                                <input type="number" name="talla" class="form-control form-control-sm"
+                                       step="1" min="30" max="250" placeholder="170">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Observaciones</label>
+                                <textarea name="observacionesEspecificas" class="form-control form-control-sm"
+                                          rows="2" placeholder="Observaciones adicionales..."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save me-1"></i>Guardar signos vitales
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB: Evolución médica -->
+                <div class="tab-pane fade" id="tab-ev" role="tabpanel"
+                     sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <form th:action="@{/clinica/pacientes/ver/{id}/evolucion-medica(id=${paciente.id})}"
+                          method="post">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-semibold">Motivo de consulta</label>
+                                <input type="text" name="motivoConsulta" class="form-control form-control-sm"
+                                       maxlength="150" placeholder="Ej: Cefalea, control periódico...">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Evolución</label>
+                                <textarea name="evolucionTexto" class="form-control form-control-sm"
+                                          rows="3" placeholder="Descripción de la evolución del paciente..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-semibold">Examen físico</label>
+                                <textarea name="examenFisico" class="form-control form-control-sm"
+                                          rows="3" placeholder="Hallazgos del examen físico..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-semibold">Impresión diagnóstica</label>
+                                <textarea name="impresionDiagnostica" class="form-control form-control-sm"
+                                          rows="3" placeholder="Diagnósticos presuntivos..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-semibold">Conducta</label>
+                                <textarea name="conducta" class="form-control form-control-sm"
+                                          rows="2" placeholder="Plan terapéutico, derivaciones..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-semibold">Indicaciones</label>
+                                <textarea name="indicaciones" class="form-control form-control-sm"
+                                          rows="2" placeholder="Medicación, indicaciones al paciente..."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save me-1"></i>Guardar evolución
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB: Estudio -->
+                <div class="tab-pane fade" id="tab-est" role="tabpanel"
+                     sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <form th:action="@{/clinica/pacientes/ver/{id}/estudio(id=${paciente.id})}"
+                          method="post">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small fw-semibold">Tipo de estudio</label>
+                                <input type="text" name="tipoEstudio" class="form-control form-control-sm"
+                                       maxlength="80" placeholder="Ej: Laboratorio, Ecografía, Rx...">
+                            </div>
+                            <div class="col-12 col-md-5">
+                                <label class="form-label small fw-semibold">Nombre del estudio</label>
+                                <input type="text" name="nombreEstudio" class="form-control form-control-sm"
+                                       maxlength="180" placeholder="Ej: Hemograma completo, Eco abdominal...">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small fw-semibold">Estado</label>
+                                <select name="estado" class="form-select form-select-sm" required>
+                                    <option th:each="e : ${estadosEstudio}"
+                                            th:value="${e.name()}"
+                                            th:text="${e.descripcion}"
+                                            th:selected="${e.name() == 'SOLICITADO'}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Indicación</label>
+                                <textarea name="indicacion" class="form-control form-control-sm"
+                                          rows="2" placeholder="Motivo / indicación clínica del estudio..."></textarea>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Fecha solicitud</label>
+                                <input type="date" name="fechaSolicitud" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small fw-semibold">Fecha realización</label>
+                                <input type="date" name="fechaRealizacion" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Resultado</label>
+                                <textarea name="resultadoTexto" class="form-control form-control-sm"
+                                          rows="3" placeholder="Resultado o informe del estudio..."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save me-1"></i>Guardar estudio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline de eventos clínicos -->
+    <div class="card mb-4">
+        <div class="card-header bg-transparent fw-semibold">
+            <i class="bi bi-clock-history me-1"></i>
+            Últimos eventos clínicos
+            <span th:if="${!#lists.isEmpty(eventos)}" class="text-muted fw-normal small ms-1"
+                  th:text="'(' + ${#lists.size(eventos)} + ')'"></span>
+        </div>
+        <div class="card-body p-0">
+
+            <div th:if="${#lists.isEmpty(eventos)}" class="text-muted px-3 py-4 text-center">
+                <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+                Sin eventos registrados para este paciente.
+            </div>
+
+            <div th:each="evento, iter : ${eventos}"
+                 th:classappend="${!iter.last} ? 'border-bottom' : ''"
+                 class="px-3 py-3">
+                <div class="d-flex align-items-start gap-3">
+
+                    <!-- Icono por tipo -->
+                    <div class="mt-1 flex-shrink-0">
+                        <span th:if="${evento.tipo.name() == 'SIGNOS_VITALES'}"
+                              class="badge rounded-pill bg-primary">
+                            <i class="bi bi-heart-pulse"></i>
+                        </span>
+                        <span th:if="${evento.tipo.name() == 'EVOLUCION_MEDICA'}"
+                              class="badge rounded-pill bg-success">
+                            <i class="bi bi-journal-medical"></i>
+                        </span>
+                        <span th:if="${evento.tipo.name() == 'ESTUDIO'}"
+                              class="badge rounded-pill bg-warning text-dark">
+                            <i class="bi bi-clipboard2-check"></i>
+                        </span>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="fw-semibold" th:text="${evento.tipo.descripcion}"></span>
+                                <span th:if="${evento.descripcionGeneral != null and !evento.descripcionGeneral.blank}"
+                                      class="text-muted ms-2 small"
+                                      th:text="${evento.descripcionGeneral}"></span>
+                            </div>
+                            <small class="text-muted text-nowrap ms-3"
+                                   th:text="${#temporals.format(evento.fechaHora, 'dd/MM/yyyy HH:mm')}"></small>
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-person me-1"></i>
+                            <span th:text="${evento.usuarioRegistrante.nombreCompleto}"></span>
+                        </small>
+                        <div th:if="${evento.observaciones != null and !evento.observaciones.blank}"
+                             class="mt-1 small text-muted fst-italic"
+                             th:text="${evento.observaciones}"></div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* Activa el primer tab visible (maneja restricciones de rol por sec:authorize). */
+    document.addEventListener('DOMContentLoaded', function () {
+        var firstBtn = document.querySelector('#tabEventos .nav-link');
+        if (firstBtn && !firstBtn.classList.contains('active')) {
+            document.querySelectorAll('#tabEventosContent .tab-pane').forEach(function (p) {
+                p.classList.remove('show', 'active');
+            });
+            firstBtn.classList.add('active');
+            var pane = document.querySelector(firstBtn.getAttribute('data-bs-target'));
+            if (pane) { pane.classList.add('show', 'active'); }
+        }
+    });
+    </script>
+
+</main>
+</body>
+</html>

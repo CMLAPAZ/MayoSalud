@@ -63,11 +63,23 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
 
-                // Pacientes: ENFERMERIA solo ve (GET). ABM completo solo ADMIN.
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
+                // Pacientes administrativo: solo ADMIN y RECEPCION (ABM)
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/pacientes/**").hasRole("ADMIN")
 
+                // Ficha clínica - GET: ADMIN, MEDICO y ENFERMERIA. RECEPCION bloqueada.
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinica/pacientes/**").hasAnyRole("ADMIN", "MEDICO", "ENFERMERIA")
+                // Signos vitales: responsabilidad de enfermería → ADMIN y ENFERMERIA.
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/clinica/pacientes/ver/*/signos-vitales").hasAnyRole("ADMIN", "ENFERMERIA")
+                // Evolución médica: diagnóstico médico → ADMIN y MEDICO.
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/clinica/pacientes/ver/*/evolucion-medica").hasAnyRole("ADMIN", "MEDICO")
+                // Estudios: prescripción médica → ADMIN y MEDICO.
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/clinica/pacientes/ver/*/estudio").hasAnyRole("ADMIN", "MEDICO")
+                // Resto de /clinica/pacientes/**: ADMIN, MEDICO y ENFERMERIA (fallback para rutas futuras).
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/clinica/pacientes/**").hasAnyRole("ADMIN", "MEDICO", "ENFERMERIA")
+
                 // Administración extra solo ADMIN
+
                 .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
 
                 // Resto: autenticación requerida
