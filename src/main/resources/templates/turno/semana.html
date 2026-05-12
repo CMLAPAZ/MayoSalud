@@ -9,7 +9,9 @@
     .semana-grid {
         display: flex;
         gap: .5rem;
-        min-width: 980px;
+        /* Importante: NO forzar un min-width global en mobile.
+           Permite que el contenedor `.semana-wrap` maneje el overflow horizontal. */
+        min-width: 0;
         align-items: flex-start;
     }
     .semana-col { flex: 1; min-width: 130px; }
