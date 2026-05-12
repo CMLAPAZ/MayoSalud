@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" th:replace="~{layout :: layout(~{::main}, 'Inicio')}"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <main>
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -109,8 +110,20 @@
                                   th:text="${turno.estado.descripcion}"></span>
                         </td>
                         <td>
-                            <a th:href="@{/turnos/editar/{id}(id=${turno.id})}" class="btn btn-sm btn-outline-secondary">
+                            <!-- ADMIN / RECEPCION: edición administrativa del turno -->
+                            <a sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')"
+                               th:href="@{/turnos/editar/{id}(id=${turno.id})}"
+                               class="btn btn-sm btn-outline-secondary"
+                               title="Editar turno">
                                 <i class="bi bi-pencil"></i>
+                            </a>
+                            <!-- MEDICO / ENFERMERIA: abrir ficha clínica del paciente -->
+                            <a sec:authorize="hasAnyRole('MEDICO', 'ENFERMERIA')"
+                               th:if="${turno.paciente != null}"
+                               th:href="@{/clinica/pacientes/ver/{id}(id=${turno.paciente.id})}"
+                               class="btn btn-sm btn-outline-primary"
+                               title="Abrir ficha clínica">
+                                <i class="bi bi-clipboard2-pulse"></i>
                             </a>
                         </td>
                     </tr>
