@@ -66,7 +66,12 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
 
 
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
+.requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/eliminar/**").hasAnyRole("ADMIN", "RECEPCION")
+
+                
+
+
+
 
 
                 // Pacientes administrativo: solo ADMIN y RECEPCION (ABM)
