@@ -63,7 +63,7 @@ public class SecurityConfig {
                 // Turnos: ENFERMERIA solo puede ver la agenda (GET /turnos/**),
                 // pero no puede acceder a la edición (GET /turnos/editar/**).
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/editar/**").hasAnyRole("ADMIN", "RECEPCION")
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA", "MEDICO")
 
 
 .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/eliminar/**").hasAnyRole("ADMIN", "RECEPCION")
