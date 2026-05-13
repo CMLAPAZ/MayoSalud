@@ -124,16 +124,30 @@ public class TurnoService {
      */
     @Transactional(readOnly = true)
     public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha) {
-        if (fecha == null || medico == null) return List.of();
+        org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TurnoService.class);
+        log.debug("[DIAG] calcularTurnosLibres called. medicoId={}, fecha={}", medico != null ? medico.getId() : null, fecha);
 
-        if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+        if (fecha == null || medico == null) {
+            log.debug("[DIAG] medico o fecha null -> []");
             return List.of();
         }
-        if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
+
+        boolean esDomingo = fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
+        log.debug("[DIAG] fecha dayOfWeek={}, esDomingo={}", fecha.getDayOfWeek(), esDomingo);
+        if (esDomingo) {
+            log.debug("[DIAG] bloqueado por domingo -> []");
+            return List.of();
+        }
+
+        boolean esFeriadoActivo = feriadoRepository.existsByFechaAndActivoTrue(fecha);
+        log.debug("[DIAG] feriadoActivo? {} para fecha {}", esFeriadoActivo, fecha);
+        if (esFeriadoActivo) {
+            log.debug("[DIAG] bloqueado por feriado activo -> []");
             return List.of();
         }
 
         final int duracionMinutos = 30;
+
 
 
         // Slots solicitados por el usuario (inicio del turno cada 30 min)
@@ -150,8 +164,10 @@ public class TurnoService {
         );
 
         List<Turno> turnosExistentes = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(medico, fecha);
+        log.debug("[DIAG] turnosExistentes count={} para medicoId={} fecha={}", turnosExistentes.size(), medico.getId(), fecha);
 
-        return slots.stream()
+        var libres = slots.stream()
+
                 .filter(slotInicio -> {
                     java.time.LocalDateTime nuevoInicio = slotInicio.atDate(fecha);
                     java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracionMinutos);
@@ -169,7 +185,11 @@ public class TurnoService {
                 })
                 .map(t -> String.format("%02d:%02d", t.getHour(), t.getMinute()))
                 .toList();
+
+        log.debug("[DIAG] libres calculados count={} libres={}", libres.size(), libres);
+        return libres;
     }
+
 
     /** Devuelve los feriados activos de un rango de fechas indexados por fecha. */
     @Transactional(readOnly = true)

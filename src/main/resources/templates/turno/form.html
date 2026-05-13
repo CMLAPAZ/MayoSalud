@@ -42,8 +42,11 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha *</label>
-                        <input type="date" id="fechaInput" class="form-control" th:field="*{fecha}"
-                               th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'"/>
+                        <input type="date" id="fechaInput" class="form-control"
+                               th:field="*{fecha}"
+                               th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'"
+                               th:value="${turno.fecha != null ? #temporals.format(turno.fecha, 'yyyy-MM-dd') : ''}"/>
+
                         <div class="invalid-feedback" th:errors="*{fecha}"></div>
                     </div>
                     <div class="col-md-4">

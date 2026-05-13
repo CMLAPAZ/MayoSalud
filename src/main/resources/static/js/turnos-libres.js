@@ -12,12 +12,18 @@
     const fecha = document.getElementById('fechaInput')?.value;
     if (!medicoId || !fecha) return;
 
-    const resp = await fetch(`/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}`);
+    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}`;
+    console.debug('[DIAG] GET', url);
+
+    const resp = await fetch(url);
+    console.debug('[DIAG] /turnos/libres status', resp.status);
 
     if (!resp.ok) return;
 
     const json = await resp.json();
+    console.debug('[DIAG] /turnos/libres json', json);
     // json = { libres: ['08:00', ...] }
+
 
     const container = document.getElementById('horaLibresContainer');
     if (!container) return;
