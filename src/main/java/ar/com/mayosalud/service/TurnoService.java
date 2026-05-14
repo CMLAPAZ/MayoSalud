@@ -1,6 +1,7 @@
 package ar.com.mayosalud.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,12 +10,15 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ar.com.mayosalud.dto.TurnosLibresResponse;
 import ar.com.mayosalud.entity.EstadoTurno;
 import ar.com.mayosalud.entity.Feriado;
+import ar.com.mayosalud.entity.HorarioAtencionMedico;
 import ar.com.mayosalud.entity.Medico;
 import ar.com.mayosalud.entity.Paciente;
 import ar.com.mayosalud.entity.Turno;
 import ar.com.mayosalud.repository.FeriadoRepository;
+import ar.com.mayosalud.repository.HorarioAtencionMedicoRepository;
 import ar.com.mayosalud.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +30,7 @@ public class TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final FeriadoRepository feriadoRepository;
+    private final HorarioAtencionMedicoRepository horarioRepository;
 
     @Transactional(readOnly = true)
     public List<Turno> listarPorFecha(LocalDate fecha) {
@@ -118,82 +123,78 @@ public class TurnoService {
     }
 
     /**
-     * Calcula turnos libres para un médico y fecha, con grilla en pasos de 30 minutos.
-     *
-     * Nota: se asume que el rango permitido es el que define el frontend (slots fijos).
-     * Si la fecha es domingo o feriado, devuelve lista vacía.
+     * Calcula turnos libres para un médico y fecha.
+     * Los slots se generan desde el horario de atención configurado para ese día.
+     * Si no hay horario activo, devuelve listas vacías.
      */
     @Transactional(readOnly = true)
-    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha, Integer duracionMinutos) {
+    public TurnosLibresResponse calcularTurnosLibres(Medico medico, LocalDate fecha, Integer duracionMinutos) {
 
         org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TurnoService.class);
-        log.debug("[DIAG] calcularTurnosLibres called. medicoId={}, fecha={}", medico != null ? medico.getId() : null, fecha);
 
         if (fecha == null || medico == null) {
-            log.debug("[DIAG] medico o fecha null -> []");
-            return List.of();
+            return new TurnosLibresResponse(List.of(), List.of());
         }
 
-        boolean esDomingo = fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
-        log.debug("[DIAG] fecha dayOfWeek={}, esDomingo={}", fecha.getDayOfWeek(), esDomingo);
-        if (esDomingo) {
-            log.debug("[DIAG] bloqueado por domingo -> []");
-            return List.of();
+        if (fecha.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            return new TurnosLibresResponse(List.of(), List.of());
         }
 
-        boolean esFeriadoActivo = feriadoRepository.existsByFechaAndActivoTrue(fecha);
-        log.debug("[DIAG] feriadoActivo? {} para fecha {}", esFeriadoActivo, fecha);
-        if (esFeriadoActivo) {
-            log.debug("[DIAG] bloqueado por feriado activo -> []");
-            return List.of();
+        if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
+            return new TurnosLibresResponse(List.of(), List.of());
         }
 
         int duracionRaw = (duracionMinutos != null) ? duracionMinutos : 30;
         final int duracion = ar.com.mayosalud.entity.TurnoDuracion.esPermitida(duracionRaw) ? duracionRaw : 30;
 
+        // Buscar horario activo del médico para el día de semana de la fecha
+        Optional<HorarioAtencionMedico> horarioOpt =
+                horarioRepository.findByMedicoAndDiaSemanaAndActivoTrue(medico, fecha.getDayOfWeek());
 
+        if (horarioOpt.isEmpty()) {
+            log.debug("[HORARIO] Sin horario activo para medicoId={} dia={}", medico.getId(), fecha.getDayOfWeek());
+            return new TurnosLibresResponse(List.of(), List.of());
+        }
 
+        HorarioAtencionMedico horario = horarioOpt.get();
 
-        // Slots solicitados por el usuario (inicio del turno cada 30 min)
-        List<java.time.LocalTime> slots = List.of(
-                java.time.LocalTime.of(8, 0),
-                java.time.LocalTime.of(8, 30),
-                java.time.LocalTime.of(9, 0),
-                java.time.LocalTime.of(9, 30),
-                java.time.LocalTime.of(10, 0),
-                java.time.LocalTime.of(10, 30),
-                java.time.LocalTime.of(11, 0),
-                java.time.LocalTime.of(11, 30),
-                java.time.LocalTime.of(12, 0)
-        );
+        // Generar todos los slots posibles: desde horaDesde hasta horaHasta, paso = duracion
+        List<java.time.LocalTime> todosSlots = new ArrayList<>();
+        java.time.LocalTime cursor = horario.getHoraDesde();
+        while (!cursor.plusMinutes(duracion).isAfter(horario.getHoraHasta())) {
+            todosSlots.add(cursor);
+            cursor = cursor.plusMinutes(duracion);
+        }
 
         List<Turno> turnosExistentes = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(medico, fecha);
-        log.debug("[DIAG] turnosExistentes count={} para medicoId={} fecha={}", turnosExistentes.size(), medico.getId(), fecha);
 
-        var libres = slots.stream()
-
+        // Filtrar slots libres: sin solapamiento con turnos existentes
+        List<java.time.LocalTime> libresSlots = todosSlots.stream()
                 .filter(slotInicio -> {
                     java.time.LocalDateTime nuevoInicio = slotInicio.atDate(fecha);
                     java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracion);
-
-                    // Libre si NO hay solapamiento con ninguno existente
                     return turnosExistentes.stream().noneMatch(t -> {
                         java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
                         int durExistente = (t.getDuracionMinutos() != null) ? t.getDuracionMinutos() : 30;
                         java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(durExistente);
-
-
-
                         // Solapa si inicio < otroFin && fin > otroInicio
                         return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
-
                     });
                 })
+                .toList();
+
+        List<String> todosList = todosSlots.stream()
                 .map(t -> String.format("%02d:%02d", t.getHour(), t.getMinute()))
                 .toList();
 
-        log.debug("[DIAG] libres calculados count={} libres={}", libres.size(), libres);
-        return libres;
+        List<String> libresList = libresSlots.stream()
+                .map(t -> String.format("%02d:%02d", t.getHour(), t.getMinute()))
+                .toList();
+
+        log.debug("[HORARIO] medicoId={} fecha={} duracion={} todos={} libres={}",
+                medico.getId(), fecha, duracion, todosList.size(), libresList.size());
+
+        return new TurnosLibresResponse(todosList, libresList);
     }
 
 

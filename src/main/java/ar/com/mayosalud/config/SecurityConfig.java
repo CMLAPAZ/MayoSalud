@@ -90,7 +90,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/clinica/pacientes/**").hasAnyRole("ADMIN", "MEDICO", "ENFERMERIA")
 
                 // Administración extra solo ADMIN
-
+                .requestMatchers("/horarios/**").hasRole("ADMIN")
                 .requestMatchers("/usuarios/**", "/feriados/**", "/auditoria/**").hasRole("ADMIN")
 
                 // Resto: autenticación requerida

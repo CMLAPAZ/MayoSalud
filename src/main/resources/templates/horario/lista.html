@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Horarios')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><i class="bi bi-clock me-2"></i>Horarios de atención</h4>
+    </div>
+
+    <!-- Selector de médico -->
+    <div class="card mb-4" style="max-width:480px;">
+        <div class="card-body">
+            <label class="form-label fw-semibold">Ver horarios de médico</label>
+            <select class="form-select" id="medicoSelector" onchange="if(this.value) window.location='/horarios/medico/'+this.value">
+                <option value="">-- Seleccionar médico --</option>
+                <option th:each="m : ${medicos}" th:value="${m.id}"
+                        th:text="${m.nombreCompleto + ' - ' + m.especialidad.descripcion}"
+                        th:selected="${medico != null and m.id == medico.id}"></option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tabla de horarios si hay médico seleccionado -->
+    <div th:if="${medico != null}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-semibold mb-0" th:text="${medico.nombreCompleto}"></h5>
+            <a th:href="@{/horarios/nuevo(medicoId=${medico.id})}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Agregar horario
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0" th:if="${horarios != null and !horarios.isEmpty()}">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Día</th>
+                            <th>Desde</th>
+                            <th>Hasta</th>
+                            <th>Duración base</th>
+                            <th style="width:90px">Estado</th>
+                            <th style="width:100px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="h : ${horarios}">
+                            <td class="fw-semibold" th:text="${diasEspanol[h.diaSemana]}">Lunes</td>
+                            <td th:text="${#temporals.format(h.horaDesde, 'HH:mm')}"></td>
+                            <td th:text="${#temporals.format(h.horaHasta, 'HH:mm')}"></td>
+                            <td th:text="${h.duracionBaseMinutos + ' min'}"></td>
+                            <td>
+                                <span th:class="${h.activo ? 'badge bg-success' : 'badge bg-secondary'}"
+                                      th:text="${h.activo ? 'Activo' : 'Inactivo'}"></span>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/horarios/editar/{id}(id=${h.id})}"
+                                   class="btn btn-sm btn-outline-secondary me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form th:action="@{/horarios/eliminar/{id}(id=${h.id})}" method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('¿Eliminar este horario?')">
+                                    <input type="hidden" name="medicoId" th:value="${medico.id}"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div th:if="${horarios == null or horarios.isEmpty()}" class="text-center text-muted py-5">
+                    <i class="bi bi-clock fs-1 d-block mb-2 opacity-25"></i>
+                    Este médico no tiene horarios configurados.
+                    <a th:href="@{/horarios/nuevo(medicoId=${medico.id})}" class="d-block mt-2">Agregar horario</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${medico == null}" class="text-center text-muted py-5">
+        <i class="bi bi-clock fs-1 d-block mb-3 opacity-25"></i>
+        Seleccioná un médico para ver o configurar sus horarios de atención.
+    </div>
+</main>
+</body>
+</html>

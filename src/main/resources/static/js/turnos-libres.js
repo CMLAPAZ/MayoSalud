@@ -1,66 +1,59 @@
 (function() {
-  function pad2(n) { return String(n).padStart(2, '0'); }
-
-  // Slots fijos solicitados por el usuario: cada 30 min desde 08:00.
-  // Ajustalo acá si querés otro rango.
-  const SLOT_TIMES = [
-    '08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00'
-  ];
 
   async function loadLibres() {
     const medicoId = document.getElementById('medicoIdSelect')?.value;
     const fecha = document.getElementById('fechaInput')?.value;
-    if (!medicoId || !fecha) return;
-
-    const duracionMinutos = document.getElementById('duracionMinutosSelect')?.value || '30';
-
-    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}&duracionMinutos=${encodeURIComponent(duracionMinutos)}`;
-
-    console.debug('[DIAG] GET', url);
-
-    const resp = await fetch(url);
-    console.debug('[DIAG] /turnos/libres status', resp.status);
-
-    if (!resp.ok) return;
-
-    const json = await resp.json();
-    console.debug('[DIAG] /turnos/libres json', json);
-    // json = { libres: ['08:00', ...] }
-
-
     const container = document.getElementById('horaLibresContainer');
     if (!container) return;
 
-    // Limpiar
-    container.innerHTML = '';
+    if (!medicoId || !fecha) {
+      container.innerHTML = '';
+      return;
+    }
 
-    SLOT_TIMES.forEach(function(t) {
-      const disabled = !json.libres.includes(t);
+    const duracionMinutos = document.getElementById('duracionMinutosSelect')?.value || '30';
+    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}&duracionMinutos=${encodeURIComponent(duracionMinutos)}`;
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn-sm me-2 mb-2';
-      btn.textContent = t;
-      btn.style = disabled
-        ? 'background:#f1f3f5; color:#adb5bd; border-color:#e9ecef;'
-        : 'background:#5B8DB8; color:#fff; border-color:#5B8DB8;';
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) return;
+      const json = await resp.json();
+      // json = { todos: ['08:00', ...], libres: ['08:00', ...] }
 
-      btn.disabled = disabled;
-      if (!disabled) {
-        btn.addEventListener('click', function() {
-          const horaHidden = document.getElementById('horaHiddenInput');
-          horaHidden.value = t;
+      container.innerHTML = '';
 
-          // Visual feedback
-          document.querySelectorAll('#horaLibresContainer button').forEach(function(b) {
-            b.style.outline = '';
-          });
-          btn.style.outline = '2px solid #2C5F82';
-        });
+      if (!json.todos || json.todos.length === 0) {
+        container.innerHTML = '<span class="text-muted small">Sin horario configurado para este médico y día.</span>';
+        return;
       }
 
-      container.appendChild(btn);
-    });
+      json.todos.forEach(function(t) {
+        const libre = json.libres.includes(t);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm me-2 mb-2';
+        btn.textContent = t;
+        btn.style = libre
+          ? 'background:#5B8DB8; color:#fff; border-color:#5B8DB8;'
+          : 'background:#f1f3f5; color:#adb5bd; border-color:#e9ecef;';
+
+        btn.disabled = !libre;
+        if (libre) {
+          btn.addEventListener('click', function() {
+            document.getElementById('horaHiddenInput').value = t;
+            document.querySelectorAll('#horaLibresContainer button').forEach(function(b) {
+              b.style.outline = '';
+            });
+            btn.style.outline = '2px solid #2C5F82';
+          });
+        }
+
+        container.appendChild(btn);
+      });
+    } catch (e) {
+      console.error('[turnos-libres]', e);
+    }
   }
 
   function wireEvents() {
@@ -72,11 +65,8 @@
     if (fechaInput) fechaInput.addEventListener('change', loadLibres);
     if (duracionSelect) duracionSelect.addEventListener('change', loadLibres);
 
-    // Al cargar
     loadLibres();
   }
 
-
   document.addEventListener('DOMContentLoaded', wireEvents);
 })();
-

@@ -147,18 +147,8 @@ public class TurnoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(defaultValue = "30") Integer duracionMinutos) {
 
-        org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TurnoController.class);
-        log.debug("[DIAG] /turnos/libres called. medicoId={}, fecha={}", medicoId, fecha);
         var medico = medicoService.buscarPorId(medicoId);
-        if (fecha == null) {
-            log.debug("[DIAG] fecha null -> calcularTurnosLibres devolvera []");
-        } else {
-            log.debug("[DIAG] fecha dayOfWeek={} (iso={})", fecha.getDayOfWeek(), fecha);
-        }
-        var libres = turnoService.calcularTurnosLibres(medico, fecha, duracionMinutos);
-
-        log.debug("[DIAG] /turnos/libres result count={}, libres={}", libres.size(), libres);
-        return new TurnosLibresResponse(libres);
+        return turnoService.calcularTurnosLibres(medico, fecha, duracionMinutos);
     }
 
 
