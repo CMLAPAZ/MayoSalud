@@ -148,11 +148,8 @@ public class TurnoService {
             return List.of();
         }
 
-        int duracion = (duracionMinutos != null) ? duracionMinutos : 30;
-        if (!ar.com.mayosalud.entity.TurnoDuracion.esPermitida(duracion)) {
-            // si viene un valor raro, degradar a 30
-            duracion = 30;
-        }
+        int duracionRaw = (duracionMinutos != null) ? duracionMinutos : 30;
+        final int duracion = ar.com.mayosalud.entity.TurnoDuracion.esPermitida(duracionRaw) ? duracionRaw : 30;
 
 
 
