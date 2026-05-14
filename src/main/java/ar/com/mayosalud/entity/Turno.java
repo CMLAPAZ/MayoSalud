@@ -68,10 +68,9 @@ public class Turno {
     @NotNull(message = "La duración es obligatoria")
     @Min(value = 15, message = "La duración mínima es 15 minutos")
     @Max(value = 60, message = "La duración máxima es 60 minutos")
-    // DB no tiene la columna de duración (según el contexto del error). 
-    // Se usa duración fija (30 min) desde la lógica/cálculos, por eso este campo no se persiste.
-    @jakarta.persistence.Transient
+    @Column(name = "duracion_minutos", nullable = false)
+    @Builder.Default
     private Integer duracionMinutos = 30;
 
-
 }
+

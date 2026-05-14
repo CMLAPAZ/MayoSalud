@@ -12,7 +12,10 @@
     const fecha = document.getElementById('fechaInput')?.value;
     if (!medicoId || !fecha) return;
 
-    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}`;
+    const duracionMinutos = document.getElementById('duracionMinutosSelect')?.value || '30';
+
+    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}&duracionMinutos=${encodeURIComponent(duracionMinutos)}`;
+
     console.debug('[DIAG] GET', url);
 
     const resp = await fetch(url);
@@ -63,13 +66,16 @@
   function wireEvents() {
     const medicoSelect = document.getElementById('medicoIdSelect');
     const fechaInput = document.getElementById('fechaInput');
+    const duracionSelect = document.getElementById('duracionMinutosSelect');
 
     if (medicoSelect) medicoSelect.addEventListener('change', loadLibres);
     if (fechaInput) fechaInput.addEventListener('change', loadLibres);
+    if (duracionSelect) duracionSelect.addEventListener('change', loadLibres);
 
     // Al cargar
     loadLibres();
   }
+
 
   document.addEventListener('DOMContentLoaded', wireEvents);
 })();

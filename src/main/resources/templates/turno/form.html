@@ -59,12 +59,24 @@
                     </div>
 
                     <div class="col-md-4">
+                        <label class="form-label fw-semibold">Duración *</label>
+                        <select class="form-select" th:field="*{duracionMinutos}" id="duracionMinutosSelect"
+                                th:classappend="${#fields.hasErrors('duracionMinutos')} ? 'is-invalid'">
+                            <option th:each="d : ${T(ar.com.mayosalud.entity.TurnoDuracion).PERMITIDAS}"
+                                    th:value="${d}"
+                                    th:text="${d + ' minutos'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{duracionMinutos}"></div>
+                    </div>
+
+                    <div class="col-md-4">
                         <label class="form-label fw-semibold">Estado</label>
                         <select class="form-select" th:field="*{estado}">
                             <option th:each="e : ${estados}" th:value="${e.name()}"
                                     th:text="${e.descripcion}"></option>
                         </select>
                     </div>
+
 
                     <div class="col-12">
                         <label class="form-label fw-semibold">Motivo de consulta</label>

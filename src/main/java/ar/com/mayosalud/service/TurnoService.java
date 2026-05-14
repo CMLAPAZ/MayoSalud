@@ -64,17 +64,18 @@ public class TurnoService {
             }
         }
 
-        // Duración fija desde código (sin columna en DB): 30 minutos
-        final int duracionMinutos = 30;
+        int duracionMinutos = (turno.getDuracionMinutos() != null) ? turno.getDuracionMinutos() : 30;
+        if (!ar.com.mayosalud.entity.TurnoDuracion.esPermitida(duracionMinutos)) {
+            throw new RuntimeException("Duración inválida. Permitidas: 15/30/45/60");
+        }
 
         // Evitar solapamientos por intervalo: mismo médico y misma fecha
-
         if (turno.getMedico() != null && fecha != null && turno.getHora() != null) {
-            List<Turno> turnosDelMedicoEseDia = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(turno.getMedico(), fecha);
+            List<Turno> turnosDelMedicoEseDia =
+                    turnoRepository.findByMedicoAndFechaOrderByHoraAsc(turno.getMedico(), fecha);
 
             java.time.LocalDateTime nuevoInicio = turno.getHora().atDate(fecha);
-            java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(30);
-
+            java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracionMinutos);
 
             Long editingId = turno.getId();
 
@@ -83,10 +84,9 @@ public class TurnoService {
                     continue;
                 }
 
+                int durExistente = (t.getDuracionMinutos() != null) ? t.getDuracionMinutos() : 30;
                 java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
-                // Duración fija: 30 minutos
-                java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(30);
-
+                java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(durExistente);
 
                 boolean solapa = nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
                 if (solapa) {
@@ -97,6 +97,7 @@ public class TurnoService {
 
         return turnoRepository.save(turno);
     }
+
 
 
 
@@ -123,7 +124,8 @@ public class TurnoService {
      * Si la fecha es domingo o feriado, devuelve lista vacía.
      */
     @Transactional(readOnly = true)
-    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha) {
+    public List<String> calcularTurnosLibres(Medico medico, LocalDate fecha, Integer duracionMinutos) {
+
         org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TurnoService.class);
         log.debug("[DIAG] calcularTurnosLibres called. medicoId={}, fecha={}", medico != null ? medico.getId() : null, fecha);
 
@@ -146,7 +148,12 @@ public class TurnoService {
             return List.of();
         }
 
-        final int duracionMinutos = 30;
+        int duracion = (duracionMinutos != null) ? duracionMinutos : 30;
+        if (!ar.com.mayosalud.entity.TurnoDuracion.esPermitida(duracion)) {
+            // si viene un valor raro, degradar a 30
+            duracion = 30;
+        }
+
 
 
 
@@ -170,17 +177,19 @@ public class TurnoService {
 
                 .filter(slotInicio -> {
                     java.time.LocalDateTime nuevoInicio = slotInicio.atDate(fecha);
-                    java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracionMinutos);
+                    java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracion);
 
                     // Libre si NO hay solapamiento con ninguno existente
                     return turnosExistentes.stream().noneMatch(t -> {
                         java.time.LocalDateTime existenteInicio = t.getHora().atDate(fecha);
-                        // Duración fija: 30 minutos
-                        java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(30);
+                        int durExistente = (t.getDuracionMinutos() != null) ? t.getDuracionMinutos() : 30;
+                        java.time.LocalDateTime existenteFin = existenteInicio.plusMinutes(durExistente);
+
 
 
                         // Solapa si inicio < otroFin && fin > otroInicio
                         return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
+
                     });
                 })
                 .map(t -> String.format("%02d:%02d", t.getHour(), t.getMinute()))
