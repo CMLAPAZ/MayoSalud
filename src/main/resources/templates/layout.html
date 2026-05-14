@@ -170,8 +170,8 @@
             </li>
             <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">Administración</div></li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                <a class="nav-link" th:classappend="${requestURI.startsWith('/horarios') ? 'active' : ''}" href="/horarios">
-                    <i class="bi bi-clock"></i> Horarios
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/horarios-medicos') ? 'active' : ''}" href="/horarios-medicos">
+                    <i class="bi bi-clock"></i> Horarios médicos
                 </a>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">

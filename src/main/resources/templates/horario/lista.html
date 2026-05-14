@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Horarios')}"
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Horarios médicos')}"
       xmlns:th="http://www.thymeleaf.org">
 <body>
 <main>
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0"><i class="bi bi-clock me-2"></i>Horarios de atención</h4>
+        <h4 class="fw-bold mb-0"><i class="bi bi-clock me-2"></i>Horarios de atención médica</h4>
     </div>
 
     <!-- Selector de médico -->
-    <div class="card mb-4" style="max-width:480px;">
+    <div class="card mb-4" style="max-width:500px;">
         <div class="card-body">
-            <label class="form-label fw-semibold">Ver horarios de médico</label>
-            <select class="form-select" id="medicoSelector" onchange="if(this.value) window.location='/horarios/medico/'+this.value">
-                <option value="">-- Seleccionar médico --</option>
+            <label class="form-label fw-semibold">Seleccionar médico</label>
+            <select class="form-select" onchange="if(this.value) window.location='/horarios-medicos/medico/'+this.value">
+                <option value="">-- Elegir médico --</option>
                 <option th:each="m : ${medicos}" th:value="${m.id}"
                         th:text="${m.nombreCompleto + ' - ' + m.especialidad.descripcion}"
                         th:selected="${medico != null and m.id == medico.id}"></option>
@@ -24,7 +24,7 @@
     <div th:if="${medico != null}">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-semibold mb-0" th:text="${medico.nombreCompleto}"></h5>
-            <a th:href="@{/horarios/nuevo(medicoId=${medico.id})}" class="btn btn-primary btn-sm">
+            <a th:href="@{/horarios-medicos/nuevo(medicoId=${medico.id})}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-circle me-1"></i> Agregar horario
             </a>
         </div>
@@ -39,7 +39,7 @@
                             <th>Hasta</th>
                             <th>Duración base</th>
                             <th style="width:90px">Estado</th>
-                            <th style="width:100px"></th>
+                            <th style="width:140px"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,16 +53,27 @@
                                       th:text="${h.activo ? 'Activo' : 'Inactivo'}"></span>
                             </td>
                             <td class="text-end">
-                                <a th:href="@{/horarios/editar/{id}(id=${h.id})}"
+                                <a th:href="@{/horarios-medicos/editar/{id}(id=${h.id})}"
                                    class="btn btn-sm btn-outline-secondary me-1">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form th:action="@{/horarios/eliminar/{id}(id=${h.id})}" method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar este horario?')">
+                                <!-- Desactivar si activo -->
+                                <form th:if="${h.activo}"
+                                      th:action="@{/horarios-medicos/desactivar/{id}(id=${h.id})}"
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('¿Desactivar este horario?')">
                                     <input type="hidden" name="medicoId" th:value="${medico.id}"/>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pause-circle"></i>
+                                    </button>
+                                </form>
+                                <!-- Reactivar si inactivo -->
+                                <form th:if="${!h.activo}"
+                                      th:action="@{/horarios-medicos/reactivar/{id}(id=${h.id})}"
+                                      method="post" class="d-inline">
+                                    <input type="hidden" name="medicoId" th:value="${medico.id}"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-play-circle"></i>
                                     </button>
                                 </form>
                             </td>
@@ -71,8 +82,10 @@
                 </table>
                 <div th:if="${horarios == null or horarios.isEmpty()}" class="text-center text-muted py-5">
                     <i class="bi bi-clock fs-1 d-block mb-2 opacity-25"></i>
-                    Este médico no tiene horarios configurados.
-                    <a th:href="@{/horarios/nuevo(medicoId=${medico.id})}" class="d-block mt-2">Agregar horario</a>
+                    Este médico no tiene horarios cargados.
+                    <a th:href="@{/horarios-medicos/nuevo(medicoId=${medico.id})}" class="d-block mt-2">
+                        Agregar horario
+                    </a>
                 </div>
             </div>
         </div>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Horario')}"
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Horario médico')}"
       xmlns:th="http://www.thymeleaf.org">
 <body>
 <main>
     <div class="d-flex align-items-center mb-4">
-        <a th:href="${horario.medico != null ? '/horarios/medico/' + horario.medico.id : '/horarios'}"
+        <a th:href="${horario.medico != null ? '/horarios-medicos/medico/' + horario.medico.id : '/horarios-medicos'}"
            class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
         <h4 class="fw-bold mb-0"
             th:text="${horario.id != null ? 'Editar horario de atención' : 'Nuevo horario de atención'}"></h4>
@@ -12,7 +12,7 @@
 
     <div class="card" style="max-width:560px;">
         <div class="card-body">
-            <form th:action="@{/horarios/guardar}" method="post" th:object="${horario}">
+            <form th:action="@{/horarios-medicos/guardar}" method="post" th:object="${horario}">
                 <input type="hidden" th:field="*{id}"/>
                 <div class="row g-3">
 
@@ -54,16 +54,17 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Duración base *</label>
+                        <label class="form-label fw-semibold">Duración base del turno</label>
                         <select class="form-select" th:field="*{duracionBaseMinutos}">
                             <option th:each="d : ${duracionesPermitidas}"
                                     th:value="${d}"
                                     th:text="${d + ' minutos'}"></option>
                         </select>
+                        <div class="form-text">Referencia para la agenda; el recepcionista puede elegir otra duración al crear el turno.</div>
                     </div>
 
-                    <div class="col-md-6 d-flex align-items-end">
-                        <div class="form-check mb-2">
+                    <div class="col-md-6 d-flex align-items-center pt-4">
+                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" th:field="*{activo}" id="activoCheck"/>
                             <label class="form-check-label fw-semibold" for="activoCheck">Activo</label>
                         </div>
@@ -74,7 +75,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-floppy me-1"></i> Guardar
                     </button>
-                    <a th:href="${horario.medico != null ? '/horarios/medico/' + horario.medico.id : '/horarios'}"
+                    <a th:href="${horario.medico != null ? '/horarios-medicos/medico/' + horario.medico.id : '/horarios-medicos'}"
                        class="btn btn-outline-secondary">Cancelar</a>
                 </div>
             </form>

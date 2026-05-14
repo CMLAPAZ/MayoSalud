@@ -1,5 +1,6 @@
 package ar.com.mayosalud.service;
 
+import ar.com.mayosalud.entity.DiaAtencion;
 import ar.com.mayosalud.entity.HorarioAtencionMedico;
 import ar.com.mayosalud.entity.Medico;
 import ar.com.mayosalud.repository.HorarioAtencionMedicoRepository;
@@ -35,14 +36,52 @@ public class HorarioAtencionMedicoService {
     }
 
     public HorarioAtencionMedico guardar(HorarioAtencionMedico horario) {
-        if (horario.getHoraDesde() != null && horario.getHoraHasta() != null
-                && !horario.getHoraHasta().isAfter(horario.getHoraDesde())) {
+        if (horario.getHoraDesde() == null || horario.getHoraHasta() == null) {
+            throw new RuntimeException("La hora de inicio y fin son obligatorias.");
+        }
+        if (!horario.getHoraHasta().isAfter(horario.getHoraDesde())) {
             throw new RuntimeException("La hora de fin debe ser posterior a la hora de inicio.");
         }
+
+        // Validar solapamiento: no puede haber otro horario activo para mismo médico+día
+        if (horario.isActivo() && horario.getMedico() != null && horario.getDiaSemana() != null) {
+            horarioRepository.findByMedicoAndDiaSemanaAndActivoTrue(
+                    horario.getMedico(), horario.getDiaSemana()
+            ).ifPresent(existente -> {
+                if (!existente.getId().equals(horario.getId())) {
+                    String dia = DiaAtencion.NOMBRES.getOrDefault(horario.getDiaSemana(),
+                            horario.getDiaSemana().name());
+                    throw new RuntimeException(
+                            "Ya existe un horario activo para " + dia +
+                            ". Desactivalo primero antes de crear uno nuevo.");
+                }
+            });
+        }
+
         return horarioRepository.save(horario);
     }
 
-    public void eliminar(Long id) {
-        horarioRepository.deleteById(id);
+    public void desactivar(Long id) {
+        HorarioAtencionMedico horario = buscarPorId(id);
+        horario.setActivo(false);
+        horarioRepository.save(horario);
+    }
+
+    public void reactivar(Long id) {
+        HorarioAtencionMedico horario = buscarPorId(id);
+        // Validar que no haya otro activo para ese médico+día
+        horarioRepository.findByMedicoAndDiaSemanaAndActivoTrue(
+                horario.getMedico(), horario.getDiaSemana()
+        ).ifPresent(existente -> {
+            if (!existente.getId().equals(id)) {
+                String dia = DiaAtencion.NOMBRES.getOrDefault(horario.getDiaSemana(),
+                        horario.getDiaSemana().name());
+                throw new RuntimeException(
+                        "Ya existe un horario activo para " + dia +
+                        ". Desactivalo primero.");
+            }
+        });
+        horario.setActivo(true);
+        horarioRepository.save(horario);
     }
 }

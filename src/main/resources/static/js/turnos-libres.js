@@ -1,68 +1,92 @@
-(function() {
+(function () {
+
+  var horaSeleccionada = null;
 
   async function loadLibres() {
-    const medicoId = document.getElementById('medicoIdSelect')?.value;
-    const fecha = document.getElementById('fechaInput')?.value;
-    const container = document.getElementById('horaLibresContainer');
+    var medicoId  = document.getElementById('medicoIdSelect')?.value;
+    var fecha     = document.getElementById('fechaInput')?.value;
+    var container = document.getElementById('horaLibresContainer');
+    var hidden    = document.getElementById('horaHiddenInput');
     if (!container) return;
 
-    if (!medicoId || !fecha) {
-      container.innerHTML = '';
-      return;
-    }
+    // Limpiar selección al cambiar parámetros
+    horaSeleccionada = null;
+    if (hidden) hidden.value = '';
+    container.innerHTML = '';
 
-    const duracionMinutos = document.getElementById('duracionMinutosSelect')?.value || '30';
-    const url = `/turnos/libres?medicoId=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}&duracionMinutos=${encodeURIComponent(duracionMinutos)}`;
+    if (!medicoId || !fecha) return;
+
+    var duracion = document.getElementById('duracionMinutosSelect')?.value || '30';
+    var url = '/turnos/libres?medicoId=' + encodeURIComponent(medicoId) +
+              '&fecha=' + encodeURIComponent(fecha) +
+              '&duracionMinutos=' + encodeURIComponent(duracion);
 
     try {
-      const resp = await fetch(url);
+      var resp = await fetch(url);
       if (!resp.ok) return;
-      const json = await resp.json();
-      // json = { todos: ['08:00', ...], libres: ['08:00', ...] }
+      var json = await resp.json();
+      // json = { slots: [{ hora, estado, disponible }, ...] }
 
-      container.innerHTML = '';
-
-      if (!json.todos || json.todos.length === 0) {
-        container.innerHTML = '<span class="text-muted small">Sin horario configurado para este médico y día.</span>';
+      if (!json.slots || json.slots.length === 0) {
+        container.innerHTML =
+          '<span class="text-muted small"><i class="bi bi-info-circle me-1"></i>' +
+          'Sin horario configurado para este médico en ese día.</span>';
         return;
       }
 
-      json.todos.forEach(function(t) {
-        const libre = json.libres.includes(t);
-
-        const btn = document.createElement('button');
+      json.slots.forEach(function (slot) {
+        var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-sm me-2 mb-2';
-        btn.textContent = t;
-        btn.style = libre
-          ? 'background:#5B8DB8; color:#fff; border-color:#5B8DB8;'
-          : 'background:#f1f3f5; color:#adb5bd; border-color:#e9ecef;';
+        btn.textContent = slot.hora;
+        btn.dataset.hora = slot.hora;
+        btn.dataset.estado = slot.estado;
 
-        btn.disabled = !libre;
-        if (libre) {
-          btn.addEventListener('click', function() {
-            document.getElementById('horaHiddenInput').value = t;
-            document.querySelectorAll('#horaLibresContainer button').forEach(function(b) {
-              b.style.outline = '';
+        aplicarEstilo(btn, slot.estado, false);
+
+        if (slot.disponible) {
+          btn.addEventListener('click', function () {
+            horaSeleccionada = slot.hora;
+            if (hidden) hidden.value = slot.hora;
+            // Actualizar estilos de todos los botones
+            container.querySelectorAll('button').forEach(function (b) {
+              var esSeleccionado = b.dataset.hora === slot.hora;
+              aplicarEstilo(b, b.dataset.estado, esSeleccionado);
             });
-            btn.style.outline = '2px solid #2C5F82';
           });
+        } else {
+          btn.disabled = true;
         }
 
         container.appendChild(btn);
       });
+
     } catch (e) {
       console.error('[turnos-libres]', e);
     }
   }
 
-  function wireEvents() {
-    const medicoSelect = document.getElementById('medicoIdSelect');
-    const fechaInput = document.getElementById('fechaInput');
-    const duracionSelect = document.getElementById('duracionMinutosSelect');
+  function aplicarEstilo(btn, estado, seleccionado) {
+    if (seleccionado) {
+      btn.style.cssText = 'background:#2C5F82; color:#fff; border-color:#2C5F82; font-weight:600;';
+      return;
+    }
+    if (estado === 'LIBRE') {
+      btn.style.cssText = 'background:#5B8DB8; color:#fff; border-color:#5B8DB8;';
+    } else if (estado === 'OCUPADO') {
+      btn.style.cssText = 'background:#e9ecef; color:#adb5bd; border-color:#dee2e6;';
+    } else {
+      btn.style.cssText = 'background:#fff3cd; color:#856404; border-color:#ffc107;';
+    }
+  }
 
-    if (medicoSelect) medicoSelect.addEventListener('change', loadLibres);
-    if (fechaInput) fechaInput.addEventListener('change', loadLibres);
+  function wireEvents() {
+    var medicoSelect  = document.getElementById('medicoIdSelect');
+    var fechaInput    = document.getElementById('fechaInput');
+    var duracionSelect = document.getElementById('duracionMinutosSelect');
+
+    if (medicoSelect)  medicoSelect.addEventListener('change', loadLibres);
+    if (fechaInput)    fechaInput.addEventListener('change', loadLibres);
     if (duracionSelect) duracionSelect.addEventListener('change', loadLibres);
 
     loadLibres();

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/horarios")
+@RequestMapping("/horarios-medicos")
 @RequiredArgsConstructor
 public class HorarioAtencionMedicoController {
 
@@ -73,7 +73,7 @@ public class HorarioAtencionMedicoController {
             horarioService.guardar(horario);
             Long medicoId = horario.getMedico() != null ? horario.getMedico().getId() : null;
             redirectAttrs.addFlashAttribute("exito", "Horario guardado correctamente.");
-            return "redirect:/horarios/medico/" + medicoId;
+            return "redirect:/horarios-medicos/medico/" + medicoId;
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("medicos", medicoService.listarActivos());
@@ -83,11 +83,27 @@ public class HorarioAtencionMedicoController {
         }
     }
 
-    @PostMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id, @RequestParam Long medicoId,
-                           RedirectAttributes redirectAttrs) {
-        horarioService.eliminar(id);
-        redirectAttrs.addFlashAttribute("exito", "Horario eliminado.");
-        return "redirect:/horarios/medico/" + medicoId;
+    @PostMapping("/desactivar/{id}")
+    public String desactivar(@PathVariable Long id, @RequestParam Long medicoId,
+                             RedirectAttributes redirectAttrs) {
+        try {
+            horarioService.desactivar(id);
+            redirectAttrs.addFlashAttribute("exito", "Horario desactivado.");
+        } catch (RuntimeException e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/horarios-medicos/medico/" + medicoId;
+    }
+
+    @PostMapping("/reactivar/{id}")
+    public String reactivar(@PathVariable Long id, @RequestParam Long medicoId,
+                            RedirectAttributes redirectAttrs) {
+        try {
+            horarioService.reactivar(id);
+            redirectAttrs.addFlashAttribute("exito", "Horario reactivado.");
+        } catch (RuntimeException e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/horarios-medicos/medico/" + medicoId;
     }
 }
