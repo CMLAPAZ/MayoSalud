@@ -49,13 +49,25 @@
 
                         <div class="invalid-feedback" th:errors="*{fecha}"></div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12">
                         <label class="form-label fw-semibold">Hora *</label>
-                        <input type="hidden" id="horaHiddenInput" th:field="*{hora}" th:classappend="${#fields.hasErrors('hora')} ? 'is-invalid'"/>
 
-                        <div id="horaLibresContainer" class="mt-2"></div>
+                        <!-- Hidden para Spring MVC — id explícito, sin th:field para evitar que Thymeleaf lo sobreescriba -->
+                        <input type="hidden" name="hora" id="horaHiddenInput"
+                               th:value="${turno.hora != null ? #temporals.format(turno.hora, 'HH:mm') : ''}"/>
 
-                        <div class="invalid-feedback" th:errors="*{hora}"></div>
+                        <!-- Mensaje de estado -->
+                        <div id="mensajeHorarios" class="text-muted small mb-2">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Seleccioná médico, fecha y duración para ver los horarios disponibles.
+                        </div>
+
+                        <!-- Grilla de slots -->
+                        <div id="grillaHorarios"></div>
+
+                        <!-- Error de validación -->
+                        <div th:if="${#fields.hasErrors('hora')}" class="text-danger small mt-1"
+                             th:errors="*{hora}"></div>
                     </div>
 
                     <div class="col-md-4">

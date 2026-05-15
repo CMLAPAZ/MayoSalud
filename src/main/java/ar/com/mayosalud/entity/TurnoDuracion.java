@@ -2,7 +2,7 @@ package ar.com.mayosalud.entity;
 
 /** Helper para validar duración permitida para turnos (15/30/45/60). */
 public final class TurnoDuracion {
-    public static final int[] PERMITIDAS = {15, 30, 45, 60};
+    public static final int[] PERMITIDAS = {20, 30, 45, 60};
 
     private TurnoDuracion() {}
 

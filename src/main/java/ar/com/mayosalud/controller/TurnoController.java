@@ -142,6 +142,7 @@ public class TurnoController {
 
     // JSON: horas libres para un médico y fecha (usado por turnos-libres.js)
     @GetMapping("/libres")
+    @org.springframework.web.bind.annotation.ResponseBody
     public TurnosLibresResponse libres(
             @RequestParam Long medicoId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
