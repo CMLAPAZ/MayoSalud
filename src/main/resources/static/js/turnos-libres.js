@@ -1,10 +1,16 @@
 (function () {
 
+  // th:field sobreescribe el id explícito del HTML, pero name lo setea correctamente.
+  // Usamos querySelector por name para encontrar los elementos de forma confiable.
+  function porNombre(selector) {
+    return document.querySelector(selector);
+  }
+
   var ESTILOS = {
-    LIBRE:       'background:#dbeafe; color:#1e40af; border-color:#93c5fd;',
-    OCUPADO:     'background:#f1f3f5; color:#9ca3af; border-color:#e5e7eb;',
-    SUSPENDIDO:  'background:#fef9c3; color:#92400e; border-color:#fde68a;',
-    SELECCIONADO:'background:#1e40af; color:#fff;    border-color:#1e3a8a; font-weight:600;'
+    LIBRE:        'background:#dbeafe; color:#1d4ed8; border-color:#93c5fd;',
+    OCUPADO:      'background:#f3f4f6; color:#9ca3af; border-color:#e5e7eb;',
+    SUSPENDIDO:   'background:#fef9c3; color:#92400e; border-color:#fde68a;',
+    SELECCIONADO: 'background:#1d4ed8; color:#fff;    border-color:#1e3a8a; font-weight:700;'
   };
 
   var ETIQUETAS = {
@@ -17,27 +23,48 @@
     var el = document.getElementById('mensajeHorarios');
     if (!el) return;
     if (!texto) { el.innerHTML = ''; return; }
-    var icono = esError ? 'bi-exclamation-triangle text-danger' : 'bi-info-circle text-muted';
-    el.innerHTML = '<span class="small"><i class="bi ' + icono + ' me-1"></i>' + texto + '</span>';
+    var icono = esError
+      ? 'bi-exclamation-triangle-fill text-danger'
+      : 'bi-info-circle text-muted';
+    el.innerHTML =
+      '<span class="small"><i class="bi ' + icono + ' me-1"></i>' + texto + '</span>';
+  }
+
+  function aplicarEstilo(btn, estado, seleccionado) {
+    var base = 'display:inline-block; min-width:76px; padding:7px 10px; ' +
+               'border-radius:10px; border:1.5px solid; text-align:center; ' +
+               'margin:0 8px 10px 0; cursor:default; ';
+    if (seleccionado) {
+      btn.style.cssText = base + ESTILOS.SELECCIONADO + ' cursor:pointer;';
+    } else {
+      btn.style.cssText = base + (ESTILOS[estado] || ESTILOS.SUSPENDIDO) +
+        (btn.disabled ? '' : ' cursor:pointer;');
+    }
   }
 
   async function loadLibres() {
-    var medicoId  = document.getElementById('medicoIdSelect')?.value;
-    var fecha     = document.getElementById('fechaInput')?.value;
-    var grilla    = document.getElementById('grillaHorarios');
-    var hidden    = document.getElementById('horaHiddenInput');
+    // Buscar por name (confiable) no por id (sobreescrito por th:field)
+    var medicoEl   = porNombre('select[name="medico.id"]');
+    var fechaEl    = porNombre('input[name="fecha"]');
+    var duracionEl = porNombre('select[name="duracionMinutos"]');
+    var grilla     = document.getElementById('grillaHorarios');
+    var hidden     = document.getElementById('horaHiddenInput');
 
     if (!grilla) return;
 
     grilla.innerHTML = '';
     if (hidden) hidden.value = '';
 
+    var medicoId = medicoEl ? medicoEl.value : '';
+    var fecha    = fechaEl  ? fechaEl.value  : '';
+
     if (!medicoId || !fecha) {
       setMensaje('Seleccioná médico, fecha y duración para ver los horarios disponibles.');
       return;
     }
 
-    var duracion = document.getElementById('duracionMinutosSelect')?.value || '30';
+    var duracion = (duracionEl && duracionEl.value) ? duracionEl.value : '30';
+
     var url = '/turnos/libres'
             + '?medicoId='        + encodeURIComponent(medicoId)
             + '&fecha='           + encodeURIComponent(fecha)
@@ -63,40 +90,32 @@
 
       setMensaje('');
 
-      // Valor preexistente (modo edición)
       var horaPrevia = hidden ? hidden.value : '';
 
       json.slots.forEach(function (slot) {
-        var esSeleccionado = (slot.hora === horaPrevia);
+        var esSeleccionado = slot.hora === horaPrevia;
 
         var btn = document.createElement('button');
-        btn.type = 'button';
+        btn.type           = 'button';
         btn.dataset.hora   = slot.hora;
         btn.dataset.estado = slot.estado;
-        btn.disabled = !slot.disponible;
+        btn.disabled       = !slot.disponible;
 
-        // Contenido: hora grande + etiqueta pequeña
         btn.innerHTML =
-          '<span style="display:block;font-size:1rem;font-weight:600;line-height:1.2">' + slot.hora + '</span>' +
-          '<span style="display:block;font-size:0.65rem;letter-spacing:.5px;text-transform:uppercase">' +
+          '<span style="display:block;font-size:1rem;font-weight:600;line-height:1.3">' +
+            slot.hora +
+          '</span>' +
+          '<span style="display:block;font-size:0.6rem;letter-spacing:.6px;text-transform:uppercase;margin-top:2px">' +
             (ETIQUETAS[slot.estado] || slot.estado) +
           '</span>';
 
-        btn.style.cssText = 'min-width:72px; padding:6px 8px; border-radius:8px; border:1.5px solid; ' +
-                            'text-align:center; margin:0 6px 8px 0; ' +
-                            (ESTILOS[esSeleccionado ? 'SELECCIONADO' : slot.estado] || ESTILOS.SUSPENDIDO);
+        aplicarEstilo(btn, slot.estado, esSeleccionado);
 
         if (slot.disponible) {
           btn.addEventListener('click', function () {
             if (hidden) hidden.value = slot.hora;
             grilla.querySelectorAll('button').forEach(function (b) {
-              var sel = b.dataset.hora === slot.hora;
-              b.style.cssText = btn.style.cssText.replace(
-                /background:[^;]+;.*?border-color:[^;]+/,
-                ESTILOS[sel ? 'SELECCIONADO' : b.dataset.estado] || ESTILOS.SUSPENDIDO
-              );
-              // Aplicar estilo limpio en lugar de manipular string
-              aplicarEstilo(b, b.dataset.estado, sel);
+              aplicarEstilo(b, b.dataset.estado, b.dataset.hora === slot.hora);
             });
           });
         }
@@ -104,7 +123,7 @@
         grilla.appendChild(btn);
       });
 
-      // Remarcar si hay hora previa (modo edición)
+      // Modo edición: remarcar hora ya asignada
       if (horaPrevia) {
         grilla.querySelectorAll('button').forEach(function (b) {
           aplicarEstilo(b, b.dataset.estado, b.dataset.hora === horaPrevia);
@@ -117,19 +136,14 @@
     }
   }
 
-  function aplicarEstilo(btn, estado, seleccionado) {
-    var base = 'min-width:72px; padding:6px 8px; border-radius:8px; border:1.5px solid; text-align:center; margin:0 6px 8px 0; ';
-    btn.style.cssText = base + (ESTILOS[seleccionado ? 'SELECCIONADO' : estado] || ESTILOS.SUSPENDIDO);
-  }
-
   function wireEvents() {
-    var medicoSelect   = document.getElementById('medicoIdSelect');
-    var fechaInput     = document.getElementById('fechaInput');
-    var duracionSelect = document.getElementById('duracionMinutosSelect');
+    var medicoEl   = porNombre('select[name="medico.id"]');
+    var fechaEl    = porNombre('input[name="fecha"]');
+    var duracionEl = porNombre('select[name="duracionMinutos"]');
 
-    if (medicoSelect)   medicoSelect.addEventListener('change', loadLibres);
-    if (fechaInput)     fechaInput.addEventListener('change', loadLibres);
-    if (duracionSelect) duracionSelect.addEventListener('change', loadLibres);
+    if (medicoEl)   medicoEl.addEventListener('change', loadLibres);
+    if (fechaEl)    fechaEl.addEventListener('change', loadLibres);
+    if (duracionEl) duracionEl.addEventListener('change', loadLibres);
 
     loadLibres();
   }
