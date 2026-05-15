@@ -64,9 +64,9 @@ public class Turno {
     @Column(columnDefinition = "TEXT")
     private String observaciones;
 
-    // Duración solicitada para el turno (minutos). Valores permitidos: 15/30/45/60
+    // Duración solicitada para el turno (minutos). Valores permitidos: 20/30/45/60
     @NotNull(message = "La duración es obligatoria")
-    @Min(value = 15, message = "La duración mínima es 15 minutos")
+    @Min(value = 20, message = "La duración mínima es 20 minutos")
     @Max(value = 60, message = "La duración máxima es 60 minutos")
     @Column(name = "duracion_minutos", nullable = false)
     @Builder.Default
