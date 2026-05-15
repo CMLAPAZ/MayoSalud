@@ -68,6 +68,12 @@ public class TurnoService {
             if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
                 throw new RuntimeException("No se pueden crear turnos en feriados.");
             }
+            if (turno.getHora() != null) {
+                java.time.LocalDateTime momentoTurno = turno.getHora().atDate(fecha);
+                if (momentoTurno.isBefore(java.time.LocalDateTime.now())) {
+                    throw new RuntimeException("No se pueden crear turnos en horarios ya pasados.");
+                }
+            }
         }
 
         int duracionMinutos = (turno.getDuracionMinutos() != null) ? turno.getDuracionMinutos() : 30;
@@ -166,9 +172,16 @@ public class TurnoService {
 
         List<Turno> turnosExistentes = turnoRepository.findByMedicoAndFechaOrderByHoraAsc(medico, fecha);
 
-        // Construir lista de slots con estado LIBRE u OCUPADO
+        boolean esHoy = fecha.equals(LocalDate.now());
+        java.time.LocalTime ahora = java.time.LocalTime.now();
+
+        // Construir lista de slots con estado LIBRE, OCUPADO o PASADO
         List<SlotHorario> slots = todosSlots.stream()
                 .map(slotInicio -> {
+                    if (esHoy && slotInicio.isBefore(ahora)) {
+                        String hora = String.format("%02d:%02d", slotInicio.getHour(), slotInicio.getMinute());
+                        return new SlotHorario(hora, "PASADO", false);
+                    }
                     java.time.LocalDateTime nuevoInicio = slotInicio.atDate(fecha);
                     java.time.LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracion);
                     boolean ocupado = turnosExistentes.stream().anyMatch(t -> {

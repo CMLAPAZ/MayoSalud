@@ -9,6 +9,7 @@
   var ESTILOS = {
     LIBRE:        'background:#dbeafe; color:#1d4ed8; border-color:#93c5fd;',
     OCUPADO:      'background:#f3f4f6; color:#9ca3af; border-color:#e5e7eb;',
+    PASADO:       'background:#f3f4f6; color:#d1d5db; border-color:#e5e7eb; text-decoration:line-through;',
     SUSPENDIDO:   'background:#fef9c3; color:#92400e; border-color:#fde68a;',
     SELECCIONADO: 'background:#1d4ed8; color:#fff;    border-color:#1e3a8a; font-weight:700;'
   };
@@ -16,6 +17,7 @@
   var ETIQUETAS = {
     LIBRE:      'Libre',
     OCUPADO:    'Ocupado',
+    PASADO:     'Pasado',
     SUSPENDIDO: 'Suspendido'
   };
 
