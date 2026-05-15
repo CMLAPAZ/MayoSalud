@@ -12,5 +12,6 @@ import java.util.Optional;
 @Repository
 public interface HorarioAtencionMedicoRepository extends JpaRepository<HorarioAtencionMedico, Long> {
     List<HorarioAtencionMedico> findByMedicoOrderByDiaSemanaAscHoraDesdeAsc(Medico medico);
+    List<HorarioAtencionMedico> findByMedicoAndActivoTrueOrderByDiaSemanaAscHoraDesdeAsc(Medico medico);
     Optional<HorarioAtencionMedico> findByMedicoAndDiaSemanaAndActivoTrue(Medico medico, DayOfWeek diaSemana);
 }

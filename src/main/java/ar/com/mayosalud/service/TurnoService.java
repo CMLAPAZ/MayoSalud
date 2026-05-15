@@ -68,7 +68,7 @@ public class TurnoService {
             if (feriadoRepository.existsByFechaAndActivoTrue(fecha)) {
                 throw new RuntimeException("No se pueden crear turnos en feriados.");
             }
-            if (turno.getHora() != null) {
+            if (turno.getHora() != null && turno.getId() == null) {
                 java.time.LocalDateTime momentoTurno = turno.getHora().atDate(fecha);
                 if (momentoTurno.isBefore(java.time.LocalDateTime.now())) {
                     throw new RuntimeException("No se pueden crear turnos en horarios ya pasados.");

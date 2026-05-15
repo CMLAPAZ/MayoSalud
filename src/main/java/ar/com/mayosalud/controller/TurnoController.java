@@ -24,7 +24,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ar.com.mayosalud.dto.TurnosLibresResponse;
 import ar.com.mayosalud.entity.EstadoTurno;
 import ar.com.mayosalud.entity.Feriado;
+import ar.com.mayosalud.entity.HorarioAtencionMedico;
 import ar.com.mayosalud.entity.Turno;
+import ar.com.mayosalud.repository.HorarioAtencionMedicoRepository;
 import ar.com.mayosalud.service.MedicoService;
 import ar.com.mayosalud.service.PacienteService;
 import ar.com.mayosalud.service.TurnoService;
@@ -40,6 +42,7 @@ public class TurnoController {
     private final TurnoService turnoService;
     private final MedicoService medicoService;
     private final PacienteService pacienteService;
+    private final HorarioAtencionMedicoRepository horarioRepository;
 
     private static final DateTimeFormatter FMT_DIA =
             DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", new Locale("es", "AR"));
@@ -138,6 +141,22 @@ public class TurnoController {
         model.addAttribute("pacientes", pacienteService.listarActivos());
         model.addAttribute("estados", EstadoTurno.values());
         return "turno/form";
+    }
+
+    // JSON: horarios de atención activos de un médico (usado por turnos-libres.js)
+    @GetMapping("/horarios-medico")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<Map<String, Object>> horariosMedico(@RequestParam Long medicoId) {
+        var medico = medicoService.buscarPorId(medicoId);
+        return horarioRepository.findByMedicoAndActivoTrueOrderByDiaSemanaAscHoraDesdeAsc(medico)
+                .stream()
+                .map(h -> Map.<String, Object>of(
+                        "diaSemana",           h.getDiaSemana().name(),
+                        "horaDesde",           h.getHoraDesde().toString(),
+                        "horaHasta",           h.getHoraHasta().toString(),
+                        "duracionBaseMinutos", h.getDuracionBaseMinutos()
+                ))
+                .toList();
     }
 
     // JSON: horas libres para un médico y fecha (usado por turnos-libres.js)

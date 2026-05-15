@@ -6,6 +6,14 @@
     return document.querySelector(selector);
   }
 
+  var DIA_ES = {
+    MONDAY: 'Lunes', TUESDAY: 'Martes', WEDNESDAY: 'Miércoles',
+    THURSDAY: 'Jueves', FRIDAY: 'Viernes', SATURDAY: 'Sábado', SUNDAY: 'Domingo'
+  };
+  var DIA_ORDEN = {
+    MONDAY: 0, TUESDAY: 1, WEDNESDAY: 2, THURSDAY: 3, FRIDAY: 4, SATURDAY: 5, SUNDAY: 6
+  };
+
   var ESTILOS = {
     LIBRE:        'background:#dbeafe; color:#1d4ed8; border-color:#93c5fd;',
     OCUPADO:      'background:#f3f4f6; color:#9ca3af; border-color:#e5e7eb;',
@@ -20,6 +28,9 @@
     PASADO:     'Pasado',
     SUSPENDIDO: 'Suspendido'
   };
+
+  // Horarios activos del médico seleccionado (se actualiza al cambiar el médico)
+  var horariosDelMedico = [];
 
   function setMensaje(texto, esError) {
     var el = document.getElementById('mensajeHorarios');
@@ -41,6 +52,49 @@
     } else {
       btn.style.cssText = base + (ESTILOS[estado] || ESTILOS.SUSPENDIDO) +
         (btn.disabled ? '' : ' cursor:pointer;');
+    }
+  }
+
+  function renderHorariosMedico(horarios) {
+    var el = document.getElementById('infoHorariosMedico');
+    if (!el) return;
+    if (!horarios || horarios.length === 0) {
+      el.innerHTML = '<div class="alert alert-warning py-2 small mb-0 mt-1">' +
+        '<i class="bi bi-calendar-x me-1"></i>' +
+        'Este médico no tiene horarios de atención cargados.</div>';
+      return;
+    }
+    var sorted = horarios.slice().sort(function (a, b) {
+      return (DIA_ORDEN[a.diaSemana] || 9) - (DIA_ORDEN[b.diaSemana] || 9);
+    });
+    var filas = sorted.map(function (h) {
+      return '<li class="mb-0">' +
+        '<strong>' + (DIA_ES[h.diaSemana] || h.diaSemana) + ':</strong> ' +
+        h.horaDesde + ' a ' + h.horaHasta +
+        '</li>';
+    }).join('');
+    el.innerHTML =
+      '<div class="alert alert-info py-2 small mb-0 mt-1">' +
+        '<i class="bi bi-calendar-check me-1"></i>' +
+        '<strong>Días de atención:</strong>' +
+        '<ul class="mb-0 mt-1 ps-3">' + filas + '</ul>' +
+      '</div>';
+  }
+
+  async function loadHorariosMedico() {
+    var medicoEl = porNombre('select[name="medico.id"]');
+    var el       = document.getElementById('infoHorariosMedico');
+    horariosDelMedico = [];
+    if (!el) return;
+    var medicoId = medicoEl ? medicoEl.value : '';
+    if (!medicoId) { el.innerHTML = ''; return; }
+    try {
+      var resp = await fetch('/turnos/horarios-medico?medicoId=' + encodeURIComponent(medicoId));
+      if (!resp.ok) { el.innerHTML = ''; return; }
+      horariosDelMedico = await resp.json();
+      renderHorariosMedico(horariosDelMedico);
+    } catch (e) {
+      el.innerHTML = '';
     }
   }
 
@@ -86,7 +140,17 @@
       // json = { slots: [{ hora, estado, disponible }, ...] }
 
       if (!json.slots || json.slots.length === 0) {
-        setMensaje('El médico no tiene horarios de atención configurados para esta fecha.');
+        if (horariosDelMedico.length > 0) {
+          var sorted = horariosDelMedico.slice().sort(function (a, b) {
+            return (DIA_ORDEN[a.diaSemana] || 9) - (DIA_ORDEN[b.diaSemana] || 9);
+          });
+          var diasTexto = sorted.map(function (h) {
+            return (DIA_ES[h.diaSemana] || h.diaSemana).toLowerCase();
+          }).join(', ');
+          setMensaje('El médico seleccionado no atiende ese día. Días de atención: ' + diasTexto + '.', true);
+        } else {
+          setMensaje('El médico no tiene horarios de atención configurados para esta fecha.');
+        }
         return;
       }
 
@@ -142,11 +206,25 @@
     var medicoEl   = porNombre('select[name="medico.id"]');
     var fechaEl    = porNombre('input[name="fecha"]');
     var duracionEl = porNombre('select[name="duracionMinutos"]');
+    var idEl       = porNombre('input[name="id"]');
 
-    if (medicoEl)   medicoEl.addEventListener('change', loadLibres);
+    // Restringir fecha mínima a hoy solo en turnos nuevos
+    var esNuevo = !idEl || !idEl.value;
+    if (esNuevo && fechaEl) {
+      fechaEl.min = new Date().toISOString().split('T')[0];
+    }
+
+    if (medicoEl) {
+      medicoEl.addEventListener('change', function () {
+        loadHorariosMedico();
+        loadLibres();
+      });
+    }
     if (fechaEl)    fechaEl.addEventListener('change', loadLibres);
     if (duracionEl) duracionEl.addEventListener('change', loadLibres);
 
+    // Cargar horarios del médico si ya hay uno seleccionado (modo edición)
+    loadHorariosMedico();
     loadLibres();
   }
 
