@@ -68,4 +68,11 @@ public class MedicoController {
         redirectAttrs.addFlashAttribute("exito", "Médico dado de baja correctamente.");
         return "redirect:/medicos";
     }
+
+    @PostMapping("/reactivar/{id}")
+    public String reactivar(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+        medicoService.reactivar(id);
+        redirectAttrs.addFlashAttribute("exito", "Médico reactivado correctamente.");
+        return "redirect:/medicos";
+    }
 }

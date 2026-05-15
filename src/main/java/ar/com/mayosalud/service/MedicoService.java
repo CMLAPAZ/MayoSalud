@@ -59,4 +59,10 @@ public class MedicoService {
         medico.setActivo(false);
         medicoRepository.save(medico);
     }
+
+    public void reactivar(Long id) {
+        Medico medico = buscarPorId(id);
+        medico.setActivo(true);
+        medicoRepository.save(medico);
+    }
 }
