@@ -19,12 +19,12 @@
                     <div class="col-12">
                         <label class="form-label fw-semibold">Médico *</label>
                         <select class="form-select" th:field="*{medico.id}"
-                                th:classappend="${#fields.hasErrors('medico')} ? 'is-invalid'">
+                                th:classappend="${#fields.hasErrors('medico.id')} ? 'is-invalid'">
                             <option value="">-- Seleccionar médico --</option>
                             <option th:each="m : ${medicos}" th:value="${m.id}"
                                     th:text="${m.nombreCompleto + ' - ' + m.especialidad.descripcion}"></option>
                         </select>
-                        <div class="invalid-feedback" th:errors="*{medico}"></div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('medico.id')}" th:errors="*{medico.id}"></div>
                     </div>
 
                     <div class="col-12">

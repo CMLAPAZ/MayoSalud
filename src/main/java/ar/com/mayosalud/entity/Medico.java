@@ -57,6 +57,7 @@ public class Medico {
     @Builder.Default
     private boolean activo = true;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Turno> turnos;
 
