@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -23,11 +24,22 @@ public class UsuarioInitializer implements ApplicationRunner {
     private final LoginAttemptService loginAttemptService;
     private final JdbcTemplate jdbc;
 
+    @Value("${mayosalud.admin.username:}")
+    private String adminUsername;
+
+    @Value("${mayosalud.admin.password:}")
+    private String adminPassword;
+
+    @Value("${mayosalud.admin.nombre:Administrador del Sistema}")
+    private String adminNombre;
+
     @Override
     public void run(ApplicationArguments args) {
         limpiarFechasZero();
-        usuarioService.inicializarAdmin();
-        loginAttemptService.loginExitoso("admin");
+        usuarioService.inicializarAdmin(adminUsername, adminPassword, adminNombre);
+        if (adminUsername != null && !adminUsername.isBlank()) {
+            loginAttemptService.loginExitoso(adminUsername);
+        }
         feriadoService.inicializarSiVacio();
     }
 

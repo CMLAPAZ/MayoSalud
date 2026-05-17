@@ -52,6 +52,20 @@
                         </div>
                     </div>
 
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Medico asociado</label>
+                        <select class="form-select" name="medicoId">
+                            <option value="">Sin asociar</option>
+                            <option th:each="m : ${medicos}"
+                                    th:value="${m.id}"
+                                    th:text="${m.nombreCompleto + ' - ' + m.especialidad.descripcion}"
+                                    th:selected="${usuario.medico != null and usuario.medico.id == m.id}"></option>
+                        </select>
+                        <div class="form-text">
+                            Obligatorio para usuarios con rol Medico. Los Admin pueden quedar sin asociar y ver toda la agenda.
+                        </div>
+                    </div>
+
                     <!-- Contraseña solo en creación -->
                     <div th:if="${esNuevo}" class="col-12">
                         <hr class="my-2"/>

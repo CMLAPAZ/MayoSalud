@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,11 +26,13 @@ import ar.com.mayosalud.dto.TurnosLibresResponse;
 import ar.com.mayosalud.entity.EstadoTurno;
 import ar.com.mayosalud.entity.Feriado;
 import ar.com.mayosalud.entity.HorarioAtencionMedico;
+import ar.com.mayosalud.entity.Medico;
 import ar.com.mayosalud.entity.Turno;
 import ar.com.mayosalud.repository.HorarioAtencionMedicoRepository;
 import ar.com.mayosalud.service.MedicoService;
 import ar.com.mayosalud.service.PacienteService;
 import ar.com.mayosalud.service.TurnoService;
+import ar.com.mayosalud.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +46,7 @@ public class TurnoController {
     private final MedicoService medicoService;
     private final PacienteService pacienteService;
     private final HorarioAtencionMedicoRepository horarioRepository;
+    private final UsuarioService usuarioService;
 
     private static final DateTimeFormatter FMT_DIA =
             DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", new Locale("es", "AR"));
@@ -56,9 +60,14 @@ public class TurnoController {
 
     @GetMapping
     public String agenda(Model model,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+                         Authentication authentication) {
         if (fecha == null) fecha = LocalDate.now();
-        List<Turno> turnos = turnoService.listarPorFecha(fecha);
+        Medico medicoActual = medicoActualSiRolMedico(authentication);
+        boolean filtrarPorMedico = esRolMedico(authentication);
+        List<Turno> turnos = filtrarPorMedico
+                ? turnoService.listarPorMedicoYFecha(medicoActual, fecha)
+                : turnoService.listarPorFecha(fecha);
 
         long cntPendiente  = turnos.stream().filter(t -> t.getEstado() == EstadoTurno.PENDIENTE).count();
         long cntConfirmado = turnos.stream().filter(t -> t.getEstado() == EstadoTurno.CONFIRMADO).count();
@@ -77,6 +86,10 @@ public class TurnoController {
         model.addAttribute("cntConfirmado", cntConfirmado);
         model.addAttribute("cntAtendido",   cntAtendido);
         model.addAttribute("cntCancelado",  cntCancelado);
+        if (filtrarPorMedico) {
+            model.addAttribute("agendaFiltradaMedico", true);
+            model.addAttribute("medicoAgenda", medicoActual);
+        }
         turnoService.getFeriado(fecha).ifPresent(f -> model.addAttribute("feriadoDelDia", f));
         return "turno/agenda";
     }
@@ -85,14 +98,19 @@ public class TurnoController {
 
     @GetMapping("/semana")
     public String semana(Model model,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+                         Authentication authentication) {
         if (fecha == null) fecha = LocalDate.now();
 
         LocalDate lunes  = fecha.with(DayOfWeek.MONDAY);
         LocalDate domingo = lunes.plusDays(6);
 
         // Turnos agrupados por día (orden lunes → domingo)
-        List<Turno> todos = turnoService.listarEntreFechas(lunes, domingo);
+        Medico medicoActual = medicoActualSiRolMedico(authentication);
+        boolean filtrarPorMedico = esRolMedico(authentication);
+        List<Turno> todos = filtrarPorMedico
+                ? turnoService.listarPorMedicoEntreFechas(medicoActual, lunes, domingo)
+                : turnoService.listarEntreFechas(lunes, domingo);
         Map<LocalDate, List<Turno>> turnosPorDia = new LinkedHashMap<>();
         for (int i = 0; i < 7; i++) turnosPorDia.put(lunes.plusDays(i), new ArrayList<>());
         todos.forEach(t -> turnosPorDia.get(t.getFecha()).add(t));
@@ -121,6 +139,10 @@ public class TurnoController {
         model.addAttribute("semanaAnterior", lunes.minusWeeks(1));
         model.addAttribute("semanaSiguiente",lunes.plusWeeks(1));
         model.addAttribute("estadosTurno",   EstadoTurno.values());
+        if (filtrarPorMedico) {
+            model.addAttribute("agendaFiltradaMedico", true);
+            model.addAttribute("medicoAgenda", medicoActual);
+        }
         return "turno/semana";
     }
 
@@ -221,5 +243,20 @@ public class TurnoController {
         turnoService.eliminar(id);
         redirectAttrs.addFlashAttribute("exito", "Turno eliminado.");
         return "redirect:/turnos?fecha=" + fechaRedirect;
+    }
+
+    private Medico medicoActualSiRolMedico(Authentication authentication) {
+        if (!esRolMedico(authentication)) {
+            return null;
+        }
+        return usuarioService.buscarPorUsername(authentication.getName())
+                .map(u -> u.getMedico())
+                .orElse(null);
+    }
+
+    private boolean esRolMedico(Authentication authentication) {
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_MEDICO".equals(a.getAuthority()));
     }
 }

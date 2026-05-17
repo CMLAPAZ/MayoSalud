@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Mayo - Atención Médica Integral en La Paz, Entre Ríos</title>
+    <meta name="description" content="Clínica Mayo ofrece atención médica integral, especialistas, turnos en línea y servicios de salud en La Paz, Entre Ríos.">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-primary: #2C5F82;
+            --color-primary-light: #5B8DB8;
+            --color-primary-dark: #1E3A4F;
+            --color-accent: #E74C3C;
+            --color-bg-light: #F4F7FA;
+            --color-text-dark: #1E3A4F;
+            --color-text-muted: #7F8C8D;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            color: var(--color-text-dark);
+            line-height: 1.6;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .hero .btn {
+            padding: 12px 32px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-radius: 8px;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* NAVBAR */
+        nav.navbar-custom {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom .navbar-brand {
+            font-weight: 700;
+            color: var(--color-primary) !important;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-custom .navbar-brand i {
+            margin-right: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .navbar-custom .nav-link {
+            color: var(--color-text-dark) !important;
+            font-weight: 500;
+            margin-left: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-custom .nav-link:hover {
+            color: var(--color-primary) !important;
+        }
+
+        /* INFO CARDS */
+        .info-card {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card i {
+            font-size: 3rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+        }
+
+        .info-card h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card p {
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        /* MEDICOS SECTION */
+        .medicos-section {
+            background: var(--color-bg-light);
+            padding: 60px 0;
+        }
+
+        .medico-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            text-align: center;
+        }
+
+        .medico-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .medico-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            border-radius: 50%;
+            margin: 1.5rem auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .medico-card h5 {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .medico-card .especialidad {
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .medico-card .matricula {
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* SERVICIOS */
+        .servicios-section {
+            padding: 60px 0;
+        }
+
+        .servicio-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .servicio-icon {
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.75rem;
+        }
+
+        .servicio-content h5 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-dark);
+        }
+
+        .servicio-content p {
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        /* ESTADISTICAS */
+        .stats-section {
+            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .stat-box {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        /* CTA SECTION */
+        .cta-section {
+            background: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--color-primary-dark);
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: var(--color-text-muted);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--color-primary-dark);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        footer h5 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        footer .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero .btn {
+                display: block;
+                margin-bottom: 0.75rem;
+            }
+
+            .navbar-custom .nav-link {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .cta-section h2 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* BOTONES */
+        .btn-primary-custom {
+            background: var(--color-accent);
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-primary-custom:hover {
+            background: #C0392B;
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 2px solid white;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-outline-custom:hover {
+            background: white;
+            color: var(--color-primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-heart-pulse"></i> Clínica Mayo
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#inicio">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/medicos">Médicos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/especialidades">Especialidades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/nosotros">Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contacto">Contacto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-sm btn-primary-custom ms-2" href="/login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-content">
+                <h1><i class="bi bi-heart-pulse me-2"></i>Atención Médica Integral</h1>
+                <p>Clínica Mayo ofrece servicios de salud de calidad con profesionales especializados en La Paz, Entre Ríos.</p>
+                <div>
+                    <a href="/turnos/libres" class="btn btn-light btn-lg">
+                        <i class="bi bi-calendar-check me-2"></i> Solicitar Turno
+                    </a>
+                    <a href="/especialidades" class="btn btn-outline-custom btn-lg">
+                        <i class="bi bi-search me-2"></i> Ver Especialidades
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ESTADÍSTICAS RÁPIDAS -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 stat-box">
+                    <div class="stat-number" th:text="${totalPacientes}">1250+</div>
+                    <div class="stat-label">Pacientes Atendidos</div>
+                </div>
+                <div class="col-md-3 stat-box">
+                    <div class="stat-number" th:text="${totalMedicos}">15+</div>
+                    <div class="stat-label">Médicos Especialistas</div>
+                </div>
+                <div class="col-md-3 stat-box">
+                    <div class="stat-number" th:text="${totalTurnos}">4500+</div>
+                    <div class="stat-label">Turnos Realizados</div>
+                </div>
+                <div class="col-md-3 stat-box">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Atención de Emergencias</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- POR QUE ELEGIRNOS -->
+    <section class="servicios-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3" style="color: var(--color-primary-dark);">¿Por Qué Elegirnos?</h2>
+                <p class="text-muted fs-5">Somos un equipo comprometido con tu salud y bienestar</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Infraestructura Moderna</h5>
+                            <p>Equipamiento de última generación para diagnósticos precisos y tratamientos efectivos.</p>
+                        </div>
+                    </div>
+
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Profesionales Especializados</h5>
+                            <p>Equipo médico con amplia experiencia y formación continua en sus especialidades.</p>
+                        </div>
+                    </div>
+
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Confidencialidad Garantizada</h5>
+                            <p>Protección de datos y privacidad de pacientes bajo los máximos estándares.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Turnos en Línea</h5>
+                            <p>Solicita y gestiona tus turnos desde cualquier dispositivo, de forma rápida y fácil.</p>
+                        </div>
+                    </div>
+
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Atención Rápida</h5>
+                            <p>Reducimos tiempos de espera con un sistema eficiente de gestión de turnos.</p>
+                        </div>
+                    </div>
+
+                    <div class="servicio-item">
+                        <div class="servicio-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <div class="servicio-content">
+                            <h5>Soporte al Paciente</h5>
+                            <p>Disponibles para responder tus preguntas y ayudarte en todo el proceso.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÉDICOS DESTACADOS -->
+    <section class="medicos-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3" style="color: var(--color-primary-dark);">Nuestros Médicos</h2>
+                <p class="text-muted fs-5">Profesionales comprometidos con tu salud</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4" th:each="medico : ${medicosActivos}" th:if="${medico.activo}">
+                    <div class="medico-card">
+                        <div class="medico-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="px-3 pb-3">
+                            <h5 th:text="${medico.nombreCompleto}">Dr. Nombre</h5>
+                            <div class="especialidad" th:text="${medico.especialidad}">Especialidad</div>
+                            <div class="matricula">
+                                <small>Matrícula: <span th:text="${medico.matricula}">0000</span></small>
+                            </div>
+                            <div class="mt-3">
+                                <a href="/turnos/libres" class="btn btn-sm btn-primary" style="background: var(--color-primary);">
+                                    <i class="bi bi-calendar-plus me-1"></i> Agendar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="/medicos" class="btn btn-lg btn-outline-primary" style="border-color: var(--color-primary); color: var(--color-primary);">
+                    <i class="bi bi-arrow-right me-2"></i> Ver todos nuestros médicos
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>¿Listo para agendar tu turno?</h2>
+            <p>Accede a nuestro portal de turnos en línea y elige la fecha que mejor se adapte a tus necesidades.</p>
+            <a href="/turnos/libres" class="btn btn-lg btn-primary-custom">
+                <i class="bi bi-calendar-check me-2"></i> Solicitar Turno Ahora
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <h5>
+                        <i class="bi bi-heart-pulse me-2"></i>Clínica Mayo
+                    </h5>
+                    <p>Atención médica integral para toda la familia en La Paz, Entre Ríos.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul>
+                        <li><a href="/">Inicio</a></li>
+                        <li><a href="/especialidades">Especialidades</a></li>
+                        <li><a href="/nosotros">Nosotros</a></li>
+                        <li><a href="/contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><i class="bi bi-telephone me-2"></i><a href="tel:3437422237">3437-422237</a></li>
+                        <li><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/543437402962" target="_blank">3437-402962</a></li>
+                        <li><i class="bi bi-geo-alt me-2"></i><a href="#">La Paz, Entre Ríos</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Clínica Mayo SRL. Todos los derechos reservados. | Desarrollado por MayoSalud</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

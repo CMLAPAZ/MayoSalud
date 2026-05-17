@@ -9,6 +9,16 @@
         </div>
     </div>
 
+    <div th:if="${clinicaFiltradaMedico}" class="alert alert-info py-2 mb-3">
+        <i class="bi bi-person-badge me-1"></i>
+        <span th:if="${medicoAgenda != null}">
+            Mostrando solo pacientes con turnos vinculados a <strong th:text="${medicoAgenda.nombreCompleto}"></strong>.
+        </span>
+        <span th:if="${medicoAgenda == null}">
+            Tu usuario medico no tiene un profesional asociado. Contacta a administracion.
+        </span>
+    </div>
+
     <div class="card mb-4">
         <div class="card-body">
             <form th:action="@{/clinica/pacientes}" method="get" class="row g-2 align-items-center">
@@ -60,4 +70,3 @@
 </main>
 </body>
 </html>
-

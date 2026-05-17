@@ -19,6 +19,7 @@
                         <th style="width:130px">Usuario</th>
                         <th>Email</th>
                         <th style="width:130px">Rol</th>
+                        <th>Medico asociado</th>
                         <th style="width:90px">Estado</th>
                         <th style="width:140px">Creado</th>
                         <th style="width:140px">Último acceso</th>
@@ -38,6 +39,7 @@
                                                                             'badge bg-success'}"
                                   th:text="${u.rol.descripcion}"></span>
                         </td>
+                        <td class="small text-muted" th:text="${u.medico != null ? u.medico.nombreCompleto : 'Sin asociar'}"></td>
                         <td>
                             <span th:class="${u.activo ? 'badge bg-success' : 'badge bg-danger'}"
                                   th:text="${u.activo ? 'Activo' : 'Inactivo'}"></span>

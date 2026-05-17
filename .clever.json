@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "app_id": "app_54b6363f-cbc3-4200-8c6f-144cf35b81a0",
+      "org_id": "user_57d381be-6d92-40f8-967d-f45bc76d1220",
+      "deploy_url": "https://github.com/CMLAPAZ/MayoSalud.git",
+      "git_ssh_url": "https://github.com/CMLAPAZ/MayoSalud.git",
+      "name": "MayoSalud",
+      "alias": "MayoSalud"
+    }
+  ]
+}

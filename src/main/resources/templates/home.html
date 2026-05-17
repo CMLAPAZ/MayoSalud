@@ -9,9 +9,19 @@
             <h4 class="fw-bold mb-0">Bienvenido al sistema</h4>
             <small class="text-muted text-capitalize" th:text="${hoyFormateado}"></small>
         </div>
-        <a href="/turnos/nuevo" class="btn btn-primary">
+        <a href="/turnos/nuevo" class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
             <i class="bi bi-plus-circle me-1"></i> Nuevo turno
         </a>
+    </div>
+
+    <div th:if="${agendaFiltradaMedico}" class="alert alert-info py-2 mb-3">
+        <i class="bi bi-person-badge me-1"></i>
+        <span th:if="${medicoAgenda != null}">
+            Mostrando solo los turnos de <strong th:text="${medicoAgenda.nombreCompleto}"></strong>.
+        </span>
+        <span th:if="${medicoAgenda == null}">
+            Tu usuario medico no tiene un profesional asociado. Contacta a administracion.
+        </span>
     </div>
 
     <!-- Tarjetas de estadísticas -->

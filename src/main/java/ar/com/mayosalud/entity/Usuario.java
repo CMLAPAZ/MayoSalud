@@ -42,6 +42,10 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private RolUsuario rol;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "medico_id")
+    private Medico medico;
+
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     @Builder.Default
     private boolean activo = true;

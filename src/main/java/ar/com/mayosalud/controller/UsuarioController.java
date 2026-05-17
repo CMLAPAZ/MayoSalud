@@ -3,6 +3,7 @@ package ar.com.mayosalud.controller;
 import ar.com.mayosalud.entity.RolUsuario;
 import ar.com.mayosalud.entity.Usuario;
 import ar.com.mayosalud.service.AuditoriaService;
+import ar.com.mayosalud.service.MedicoService;
 import ar.com.mayosalud.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** ABM de usuarios del sistema — acceso restringido a ADMIN. Los usuarios nunca se eliminan físicamente. */
+/** ABM de usuarios del sistema. Los usuarios nunca se eliminan fisicamente. */
 @Controller
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final AuditoriaService auditoriaService;
+    private final MedicoService medicoService;
 
     @GetMapping
     public String listar(Model model) {
@@ -32,7 +34,7 @@ public class UsuarioController {
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
         model.addAttribute("usuario", new Usuario());
-        model.addAttribute("roles", RolUsuario.values());
+        cargarCombos(model);
         model.addAttribute("esNuevo", true);
         return "usuario/form";
     }
@@ -40,28 +42,30 @@ public class UsuarioController {
     @PostMapping("/nuevo")
     public String crear(@Valid @ModelAttribute Usuario usuario,
                         BindingResult result,
+                        @RequestParam(required = false) Long medicoId,
                         @RequestParam String passwordNuevo,
                         @RequestParam String passwordConfirm,
                         Model model,
                         RedirectAttributes redirectAttrs) {
-        model.addAttribute("roles", RolUsuario.values());
+        cargarCombos(model);
         model.addAttribute("esNuevo", true);
 
         if (result.hasErrors()) return "usuario/form";
+        if (!asociarMedicoSiCorresponde(usuario, medicoId, model)) return "usuario/form";
 
         if (passwordNuevo == null || passwordNuevo.length() < 6) {
-            model.addAttribute("errorPassword", "La contraseña debe tener al menos 6 caracteres.");
+            model.addAttribute("errorPassword", "La contrasena debe tener al menos 6 caracteres.");
             return "usuario/form";
         }
         if (!passwordNuevo.equals(passwordConfirm)) {
-            model.addAttribute("errorPassword", "Las contraseñas no coinciden.");
+            model.addAttribute("errorPassword", "Las contrasenas no coinciden.");
             return "usuario/form";
         }
 
         try {
             Usuario nuevo = usuarioService.crear(usuario, passwordNuevo);
             auditoriaService.registrar("ALTA_USUARIO", "Usuario", nuevo.getId().toString(),
-                    "Creó usuario: " + nuevo.getUsername() + " (" + nuevo.getRol().getDescripcion() + ")");
+                    "Creo usuario: " + nuevo.getUsername() + " (" + nuevo.getRol().getDescripcion() + ")");
             redirectAttrs.addFlashAttribute("exito", "Usuario creado correctamente.");
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -73,7 +77,7 @@ public class UsuarioController {
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
         model.addAttribute("usuario", usuarioService.buscarPorId(id));
-        model.addAttribute("roles", RolUsuario.values());
+        cargarCombos(model);
         model.addAttribute("esNuevo", false);
         return "usuario/form";
     }
@@ -82,17 +86,20 @@ public class UsuarioController {
     public String actualizar(@PathVariable Long id,
                              @Valid @ModelAttribute Usuario usuario,
                              BindingResult result,
+                             @RequestParam(required = false) Long medicoId,
                              Model model,
                              RedirectAttributes redirectAttrs) {
-        model.addAttribute("roles", RolUsuario.values());
+        cargarCombos(model);
         model.addAttribute("esNuevo", false);
         if (result.hasErrors()) return "usuario/form";
 
         usuario.setId(id);
+        if (!asociarMedicoSiCorresponde(usuario, medicoId, model)) return "usuario/form";
+
         try {
             usuarioService.actualizar(usuario);
             auditoriaService.registrar("EDICION_USUARIO", "Usuario", id.toString(),
-                    "Editó usuario: " + usuario.getUsername());
+                    "Edito usuario: " + usuario.getUsername());
             redirectAttrs.addFlashAttribute("exito", "Usuario actualizado correctamente.");
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -115,19 +122,19 @@ public class UsuarioController {
                                   RedirectAttributes redirectAttrs) {
         if (passwordNuevo == null || passwordNuevo.length() < 6) {
             model.addAttribute("usuario", usuarioService.buscarPorId(id));
-            model.addAttribute("errorPassword", "La contraseña debe tener al menos 6 caracteres.");
+            model.addAttribute("errorPassword", "La contrasena debe tener al menos 6 caracteres.");
             return "usuario/cambiar-password";
         }
         if (!passwordNuevo.equals(passwordConfirm)) {
             model.addAttribute("usuario", usuarioService.buscarPorId(id));
-            model.addAttribute("errorPassword", "Las contraseñas no coinciden.");
+            model.addAttribute("errorPassword", "Las contrasenas no coinciden.");
             return "usuario/cambiar-password";
         }
         usuarioService.cambiarPassword(id, passwordNuevo);
         Usuario u = usuarioService.buscarPorId(id);
         auditoriaService.registrar("CAMBIO_PASSWORD", "Usuario", id.toString(),
-                "Cambió contraseña de: " + u.getUsername());
-        redirectAttrs.addFlashAttribute("exito", "Contraseña actualizada correctamente.");
+                "Cambio contrasena de: " + u.getUsername());
+        redirectAttrs.addFlashAttribute("exito", "Contrasena actualizada correctamente.");
         return "redirect:/usuarios";
     }
 
@@ -138,15 +145,29 @@ public class UsuarioController {
                                RedirectAttributes redirectAttrs) {
         Usuario u = usuarioService.buscarPorId(id);
         if (admin.getUsername().equals(u.getUsername())) {
-            redirectAttrs.addFlashAttribute("error", "No podés desactivar tu propia cuenta.");
+            redirectAttrs.addFlashAttribute("error", "No podes desactivar tu propia cuenta.");
             return "redirect:/usuarios";
         }
         usuarioService.toggleActivo(id);
         u = usuarioService.buscarPorId(id);
         auditoriaService.registrar("TOGGLE_USUARIO", "Usuario", id.toString(),
-                "Cambió estado a " + (u.isActivo() ? "ACTIVO" : "INACTIVO") + ": " + u.getUsername());
+                "Cambio estado a " + (u.isActivo() ? "ACTIVO" : "INACTIVO") + ": " + u.getUsername());
         redirectAttrs.addFlashAttribute("exito",
                 "Usuario " + (u.isActivo() ? "activado" : "desactivado") + " correctamente.");
         return "redirect:/usuarios";
+    }
+
+    private void cargarCombos(Model model) {
+        model.addAttribute("roles", RolUsuario.values());
+        model.addAttribute("medicos", medicoService.listarActivos());
+    }
+
+    private boolean asociarMedicoSiCorresponde(Usuario usuario, Long medicoId, Model model) {
+        if (usuario.getRol() == RolUsuario.MEDICO && medicoId == null) {
+            model.addAttribute("error", "Para un usuario medico tenes que asociar el profesional correspondiente.");
+            return false;
+        }
+        usuario.setMedico(medicoId != null ? medicoService.buscarPorId(medicoId) : null);
+        return true;
     }
 }

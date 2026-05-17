@@ -179,6 +179,16 @@
         </a>
     </div>
 
+    <div th:if="${agendaFiltradaMedico}" class="alert alert-info py-2 mb-3">
+        <i class="bi bi-person-badge me-1"></i>
+        <span th:if="${medicoAgenda != null}">
+            Mostrando solo los turnos de <strong th:text="${medicoAgenda.nombreCompleto}"></strong>.
+        </span>
+        <span th:if="${medicoAgenda == null}">
+            Tu usuario medico no tiene un profesional asociado. Contacta a administracion.
+        </span>
+    </div>
+
     <!-- Grilla semanal -->
     <div class="semana-wrap">
         <div class="semana-grid">
@@ -209,6 +219,10 @@
                        th:href="@{/turnos/editar/{id}(id=${t.id})}"
                        th:text="${t.paciente.nombreCompleto}"
                        sec:authorize="hasAnyRole('ADMIN','RECEPCION')"></a>
+                    <a class="semana-turno-pac"
+                       th:href="@{/clinica/pacientes/ver/{id}(id=${t.paciente.id})}"
+                       th:text="${t.paciente.nombreCompleto}"
+                       sec:authorize="hasAnyRole('MEDICO','ENFERMERIA')"></a>
 
                     <div class="semana-turno-med"
                          th:text="${t.medico.nombreCompleto}"></div>
