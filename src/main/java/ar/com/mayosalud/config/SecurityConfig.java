@@ -2,6 +2,7 @@ package ar.com.mayosalud.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -9,12 +10,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import ar.com.mayosalud.service.LoginAttemptService;
 import ar.com.mayosalud.service.UsuarioDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -32,9 +38,13 @@ public class SecurityConfig {
     private final UsuarioDetailsService usuarioDetailsService;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${mayosalud.cors.allowed-origins:https://clinicamayolapaz.com.ar}")
+    private String allowedOrigins;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .addFilterBefore(
                 (request, response, chain) -> {
                     HttpServletRequest req = (HttpServletRequest) request;
@@ -55,6 +65,9 @@ public class SecurityConfig {
                 // Recursos públicos
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
+                // Páginas institucionales públicas
+                .requestMatchers("/inicio", "/medicos", "/especialidades", "/nosotros", "/contacto").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/public/**").permitAll()
 
                 // ABM completo para ADMIN
                 .requestMatchers("/pacientes/**").hasRole("ADMIN")
@@ -102,12 +115,23 @@ public class SecurityConfig {
                 .failureHandler(authFailureHandler)
                 .permitAll()
             )
-            // Evitar fallos de POST desde navegadores/dispositivos que no incluyan el token CSRF.
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers(
-                    "/turnos/guardar",
-                    "/turnos/estado/**",
-                    "/turnos/eliminar/**"
+            .headers(headers -> headers
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "default-src 'self'; " +
+                    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+                    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+                    "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+                    "img-src 'self' data:; " +
+                    "frame-ancestors 'self' https://clinicamayolapaz.com.ar"
+                ))
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .preload(true)
+                    .maxAgeInSeconds(31536000)
+                )
+                .contentTypeOptions(contentType -> {})
+                .referrerPolicy(referrer -> referrer
+                    .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
                 )
             )
             .logout(logout -> logout
@@ -135,5 +159,25 @@ public class SecurityConfig {
     public HttpSessionEventPublisher httpSessionEventPublisher() {
         return new HttpSessionEventPublisher();
     }
-}
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(parseCsv(allowedOrigins));
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "X-Requested-With"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    private List<String> parseCsv(String value) {
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .toList();
+    }
+}

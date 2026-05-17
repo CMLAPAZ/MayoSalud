@@ -2,6 +2,7 @@ package ar.com.mayosalud.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,13 +40,39 @@ public class TurnoService {
     }
 
     @Transactional(readOnly = true)
+    public List<Turno> listarTodos() {
+        return turnoRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
     public List<Turno> listarPorMedicoYFecha(Medico medico, LocalDate fecha) {
         return turnoRepository.findByMedicoAndFechaOrderByHoraAsc(medico, fecha);
     }
 
     @Transactional(readOnly = true)
+    public List<Turno> listarPorMedicoEntreFechas(Medico medico, LocalDate desde, LocalDate hasta) {
+        return turnoRepository.findByMedicoAndFechaBetweenOrderByFechaAscHoraAsc(medico, desde, hasta);
+    }
+
+    @Transactional(readOnly = true)
     public List<Turno> listarPorPaciente(Paciente paciente) {
         return turnoRepository.findByPacienteOrderByFechaDescHoraDesc(paciente);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Paciente> listarPacientesPorMedico(Medico medico) {
+        Map<Long, Paciente> pacientes = new LinkedHashMap<>();
+        turnoRepository.findByMedicoOrderByFechaDescHoraDesc(medico).forEach(t -> {
+            if (t.getPaciente() != null && t.getPaciente().getId() != null) {
+                pacientes.putIfAbsent(t.getPaciente().getId(), t.getPaciente());
+            }
+        });
+        return new ArrayList<>(pacientes.values());
+    }
+
+    @Transactional(readOnly = true)
+    public boolean medicoAtendioPaciente(Medico medico, Paciente paciente) {
+        return medico != null && paciente != null && turnoRepository.existsByMedicoAndPaciente(medico, paciente);
     }
 
     @Transactional(readOnly = true)

@@ -69,8 +69,65 @@
         .sidebar .nav-link:hover  { background: var(--color-sidebar-hover); color: #fff; }
         .sidebar .nav-link.active { background: var(--color-btn); color: #fff; font-weight: 500; }
 
+        .mobile-menu-button {
+            border-color: rgba(255,255,255,.35);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-button:hover,
+        .mobile-menu-button:focus {
+            border-color: rgba(255,255,255,.65);
+            color: #fff;
+            background: rgba(255,255,255,.12);
+        }
+
+        .mobile-sidebar {
+            background: var(--color-sidebar-bg);
+            color: #fff;
+            width: min(86vw, 320px) !important;
+        }
+
+        .mobile-sidebar .offcanvas-header {
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .mobile-sidebar .nav-section {
+            padding: .8rem 1rem .25rem;
+            font-size: .68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,.45);
+        }
+
+        .mobile-sidebar .nav-link {
+            color: rgba(255,255,255,.82);
+            border-radius: 8px;
+            margin: 2px .75rem;
+            padding: .7rem .85rem;
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .mobile-sidebar .nav-link.active,
+        .mobile-sidebar .nav-link:hover {
+            background: var(--color-btn);
+            color: #fff;
+        }
+
         /* Content */
         .content-area { padding: 2rem; flex: 1; min-width: 0; overflow-x: hidden; }
+
+        @media (max-width: 767.98px) {
+            .navbar-brand { font-size: 1rem; }
+            .content-area { padding: 1rem; width: 100%; }
+        }
 
 
         /* Cards */
@@ -104,16 +161,56 @@
         /* Table */
         .table { font-size: 13.5px; }
         .table thead th { font-weight: 600; color: var(--color-heading); border-bottom: 2px solid #e2e8f0; }
+        .card-body.p-0 { overflow-x: auto; }
+        .table td, .table th { vertical-align: middle; }
 
         /* Stat cards */
         .stat-card { border-radius: 14px; padding: 1.25rem 1.5rem; }
         .stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
         .stat-card .stat-label { font-size: .78rem; font-weight: 500; opacity: .8; margin-top: .3rem; }
+
+        @media (max-width: 575.98px) {
+            .table {
+                min-width: 720px;
+                white-space: nowrap;
+            }
+
+            .form-control,
+            .form-select,
+            .btn {
+                min-height: 42px;
+            }
+
+            .form-control,
+            .form-select {
+                padding-top: .55rem;
+                padding-bottom: .55rem;
+            }
+
+            .btn-sm {
+                min-height: 36px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: .25rem;
+            }
+
+            .content-area .d-flex.justify-content-between {
+                gap: .75rem;
+                align-items: flex-start !important;
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid px-3">
+        <button class="btn mobile-menu-button d-md-none me-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar"
+                aria-controls="mobileSidebar" aria-label="Abrir menu">
+            <i class="bi bi-list fs-4"></i>
+        </button>
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
             <img src="/images/logo.png" alt="Logo" style="height:28px; background:#fff; border-radius:8px; padding:3px;">
             MayoSalud
@@ -131,6 +228,73 @@
         </div>
     </div>
 </nav>
+
+<div class="offcanvas offcanvas-start mobile-sidebar d-md-none" tabindex="-1" id="mobileSidebar"
+     aria-labelledby="mobileSidebarLabel">
+    <div class="offcanvas-header">
+        <div class="d-flex align-items-center gap-2">
+            <img src="/images/logo.png" alt="Logo" style="height:36px; background:#fff; border-radius:8px; padding:3px;">
+            <div>
+                <div id="mobileSidebarLabel" class="fw-bold">MayoSalud</div>
+                <small class="text-white-50">ClÃ­nica Mayo S.R.L.</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <ul class="nav flex-column pb-3">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI == '/' ? 'active' : ''}" href="/">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+            </li>
+            <li><div class="nav-section">Agenda</div></li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Turnos
+                </a>
+            </li>
+            <li><div class="nav-section">GestiÃ³n</div></li>
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/pacientes') ? 'active' : ''}" href="/pacientes">
+                    <i class="bi bi-people"></i> Pacientes
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO', 'ENFERMERIA')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/clinica/pacientes') ? 'active' : ''}" href="/clinica/pacientes">
+                    <i class="bi bi-clipboard2-pulse"></i> ClÃ­nica
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/medicos') ? 'active' : ''}" href="/medicos">
+                    <i class="bi bi-person-badge"></i> MÃ©dicos
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">AdministraciÃ³n</div></li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/horarios-medicos') ? 'active' : ''}" href="/horarios-medicos">
+                    <i class="bi bi-clock"></i> Horarios mÃ©dicos
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/usuarios') ? 'active' : ''}" href="/usuarios">
+                    <i class="bi bi-people-fill"></i> Usuarios
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/feriados') ? 'active' : ''}" href="/feriados">
+                    <i class="bi bi-calendar-x"></i> Feriados
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/auditoria') ? 'active' : ''}" href="/auditoria">
+                    <i class="bi bi-shield-check"></i> AuditorÃ­a
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
 
 <div class="d-flex">
     <nav class="sidebar d-none d-md-flex flex-column">
