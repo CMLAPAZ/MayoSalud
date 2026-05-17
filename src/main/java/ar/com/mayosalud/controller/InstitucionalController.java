@@ -53,7 +53,7 @@ public class InstitucionalController {
     /**
      * Página de médicos socios con galería
      */
-    @GetMapping("/medicos")
+    @GetMapping("/profesionales")
     public String medicos(Model model) {
         model.addAttribute("medicosActivos", medicoService.listarActivos());
         return "institucional/medicos";

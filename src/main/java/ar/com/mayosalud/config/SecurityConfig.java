@@ -66,7 +66,7 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
                 // Páginas institucionales públicas
-                .requestMatchers("/inicio", "/medicos", "/especialidades", "/nosotros", "/contacto").permitAll()
+                .requestMatchers("/inicio", "/profesionales", "/especialidades", "/nosotros", "/contacto").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/public/**").permitAll()
 
                 // ABM completo para ADMIN
