@@ -236,7 +236,7 @@
             <img src="/images/logo.png" alt="Logo" style="height:36px; background:#fff; border-radius:8px; padding:3px;">
             <div>
                 <div id="mobileSidebarLabel" class="fw-bold">MayoSalud</div>
-                <small class="text-white-50">ClÃ­nica Mayo S.R.L.</small>
+                <small class="text-white-50">Clínica Mayo S.R.L.</small>
             </div>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
@@ -255,7 +255,7 @@
                     <i class="bi bi-calendar3"></i> Turnos
                 </a>
             </li>
-            <li><div class="nav-section">GestiÃ³n</div></li>
+            <li><div class="nav-section">Gestión</div></li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/pacientes') ? 'active' : ''}" href="/pacientes">
                     <i class="bi bi-people"></i> Pacientes
@@ -263,18 +263,18 @@
             </li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO', 'ENFERMERIA')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/clinica/pacientes') ? 'active' : ''}" href="/clinica/pacientes">
-                    <i class="bi bi-clipboard2-pulse"></i> ClÃ­nica
+                    <i class="bi bi-clipboard2-pulse"></i> Clínica
                 </a>
             </li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/medicos') ? 'active' : ''}" href="/medicos">
-                    <i class="bi bi-person-badge"></i> MÃ©dicos
+                    <i class="bi bi-person-badge"></i> Médicos
                 </a>
             </li>
-            <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">AdministraciÃ³n</div></li>
+            <li sec:authorize="hasRole('ADMIN')"><div class="nav-section">Administración</div></li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/horarios-medicos') ? 'active' : ''}" href="/horarios-medicos">
-                    <i class="bi bi-clock"></i> Horarios mÃ©dicos
+                    <i class="bi bi-clock"></i> Horarios médicos
                 </a>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
@@ -289,7 +289,7 @@
             </li>
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/auditoria') ? 'active' : ''}" href="/auditoria">
-                    <i class="bi bi-shield-check"></i> AuditorÃ­a
+                    <i class="bi bi-shield-check"></i> Auditoría
                 </a>
             </li>
         </ul>
