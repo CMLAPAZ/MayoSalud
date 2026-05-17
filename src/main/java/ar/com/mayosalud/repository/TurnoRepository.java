@@ -14,7 +14,10 @@ import java.util.List;
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByFechaOrderByHoraAsc(LocalDate fecha);
     List<Turno> findByMedicoAndFechaOrderByHoraAsc(Medico medico, LocalDate fecha);
+    List<Turno> findByMedicoAndFechaBetweenOrderByFechaAscHoraAsc(Medico medico, LocalDate desde, LocalDate hasta);
+    List<Turno> findByMedicoOrderByFechaDescHoraDesc(Medico medico);
     List<Turno> findByPacienteOrderByFechaDescHoraDesc(Paciente paciente);
+    boolean existsByMedicoAndPaciente(Medico medico, Paciente paciente);
     List<Turno> findByFechaBetweenOrderByFechaAscHoraAsc(LocalDate desde, LocalDate hasta);
     List<Turno> findByEstadoAndFechaOrderByHoraAsc(EstadoTurno estado, LocalDate fecha);
     boolean existsByMedicoAndFechaAndHora(Medico medico, LocalDate fecha, java.time.LocalTime hora);
