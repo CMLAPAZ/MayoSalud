@@ -72,7 +72,11 @@
                             <label class="form-label fw-semibold">Contraseña</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" name="password" class="form-control" placeholder="contraseña" required/>
+                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="contraseña" required/>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                                        aria-label="Mostrar contraseña" title="Mostrar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-2">
@@ -89,5 +93,20 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        var input = document.getElementById('passwordInput');
+        var button = document.getElementById('togglePassword');
+        if (!input || !button) return;
+
+        button.addEventListener('click', function () {
+            var visible = input.type === 'text';
+            input.type = visible ? 'password' : 'text';
+            button.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+            button.setAttribute('title', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+            button.innerHTML = visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+        });
+    })();
+</script>
 </body>
 </html>
