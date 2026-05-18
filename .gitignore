@@ -8,3 +8,7 @@ target/
 .idea/
 *.iml
 .vscode/settings.json
+
+# Archivos institucionales (solo uso local, no se suben)
+src/main/resources/templates/institucional/
+clever.exe
