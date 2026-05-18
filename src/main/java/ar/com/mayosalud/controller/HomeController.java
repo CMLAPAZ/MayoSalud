@@ -48,6 +48,11 @@ public class HomeController {
             model.addAttribute("agendaFiltradaMedico", true);
             model.addAttribute("medicoAgenda", medicoActual);
         }
+        String nombreUsuario = usuarioService.buscarPorUsername(authentication.getName())
+                .map(u -> u.getNombreCompleto())
+                .filter(n -> n != null && !n.isBlank())
+                .orElse(authentication.getName());
+        model.addAttribute("nombreUsuario", nombreUsuario);
         return "home";
     }
 

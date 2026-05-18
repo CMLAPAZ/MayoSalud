@@ -6,7 +6,11 @@
 <main>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0">Bienvenido al sistema</h4>
+            <h4 class="fw-bold mb-0">
+                <span id="saludo-dinamico">Buen día</span>,
+                <span th:text="${nombreUsuario}">usuario</span>
+            </h4>
+            <p class="text-muted mb-0" style="font-size:.85rem">Resumen de actividad de hoy</p>
             <small class="text-muted text-capitalize" th:text="${hoyFormateado}"></small>
         </div>
         <a href="/turnos/nuevo" class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
@@ -146,6 +150,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hora = new Date().getHours();
+            let saludo = "Buen día";
+            if (hora >= 12 && hora < 20) {
+                saludo = "Buenas tardes";
+            } else if (hora >= 20 || hora < 5) {
+                saludo = "Buenas noches";
+            }
+            const el = document.getElementById("saludo-dinamico");
+            if (el) el.textContent = saludo;
+        });
+    </script>
 </main>
 </body>
 </html>
