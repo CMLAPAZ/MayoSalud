@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import ar.com.mayosalud.entity.Medico;
@@ -94,7 +92,7 @@ public class ClinicaPacienteController {
                     observacionesEspecificas);
             redirectAttributes.addFlashAttribute("exito", "Signos vitales registrados.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "No se pudo registrar los signos vitales. Revisá los datos e intentá nuevamente.");
         }
         return "redirect:/clinica/pacientes/ver/" + id;
     }
@@ -116,7 +114,7 @@ public class ClinicaPacienteController {
                     examenFisico, impresionDiagnostica, conducta, indicaciones);
             redirectAttributes.addFlashAttribute("exito", "Evolución médica registrada.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "No se pudo registrar la evolución médica. Revisá los datos e intentá nuevamente.");
         }
         return "redirect:/clinica/pacientes/ver/" + id;
     }
@@ -141,19 +139,15 @@ public class ClinicaPacienteController {
                     estado, fechaSolicitud, fechaRealizacion, resultadoTexto, resultadoUrl);
             redirectAttributes.addFlashAttribute("exito", "Estudio registrado.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "No se pudo registrar el estudio. Revisá los datos e intentá nuevamente.");
         }
         return "redirect:/clinica/pacientes/ver/" + id;
     }
 
     private void validarAccesoPaciente(Authentication authentication, Paciente paciente) {
-        if (!esRolMedico(authentication)) {
-            return;
-        }
-        Medico medicoActual = medicoActualSiRolMedico(authentication);
-        if (!turnoService.medicoAtendioPaciente(medicoActual, paciente)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El medico no tiene acceso a este paciente.");
-        }
+        // El médico puede consultar la ficha de cualquier paciente de la institución
+        // (atención directa, interconsulta, guardia, reemplazo, continuidad asistencial).
+        // Auditoría de acceso por interconsulta: etapa futura.
     }
 
     private Medico medicoActualSiRolMedico(Authentication authentication) {

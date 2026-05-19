@@ -66,30 +66,26 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/politica-privacidad").permitAll()
                 // Páginas institucionales públicas
-                .requestMatchers("/inicio", "/profesionales", "/especialidades", "/nosotros", "/contacto").permitAll()
+                .requestMatchers("/inicio", "/profesionales", "/especialidades", "/nosotros", "/contacto", "/portal", "/equipo").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/public/**").permitAll()
 
-                // ABM completo para ADMIN
-                .requestMatchers("/pacientes/**").hasRole("ADMIN")
-                .requestMatchers("/medicos/**").hasRole("ADMIN")
+                // Pacientes: RECEPCION puede ver, crear y editar; solo ADMIN puede dar de baja
+                .requestMatchers(org.springframework.http.HttpMethod.GET,  "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/pacientes/guardar").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/pacientes/baja/**").hasRole("ADMIN")
 
-                // Turnos: ENFERMERIA solo puede ver la agenda (GET /turnos/**),
-                // pero no puede acceder a la edición (GET /turnos/editar/**).
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/editar/**").hasAnyRole("ADMIN", "RECEPCION")
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA", "MEDICO")
+                // Médicos: RECEPCION puede ver la lista; solo ADMIN puede crear, editar y dar de baja
+                .requestMatchers(org.springframework.http.HttpMethod.GET,  "/medicos/**").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/medicos/**").hasRole("ADMIN")
 
-
-.requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/eliminar/**").hasAnyRole("ADMIN", "RECEPCION")
-
-                
-
-
-
+                // Turnos: ver agenda → todos los roles; editar formulario → ADMIN/RECEPCION
+                // Crear, cambiar estado y eliminar → solo ADMIN y RECEPCION
+                .requestMatchers(org.springframework.http.HttpMethod.GET,  "/turnos/editar/**").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(org.springframework.http.HttpMethod.GET,  "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA", "MEDICO")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
 
 
-                // Pacientes administrativo: solo ADMIN y RECEPCION (ABM)
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/pacientes/**").hasAnyRole("ADMIN", "RECEPCION")
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/pacientes/**").hasRole("ADMIN")
+
 
                 // Ficha clínica - GET: ADMIN, MEDICO y ENFERMERIA. RECEPCION bloqueada.
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinica/pacientes/**").hasAnyRole("ADMIN", "MEDICO", "ENFERMERIA")
