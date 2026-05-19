@@ -10,7 +10,14 @@
                 <span id="saludo-dinamico">Buen día</span>,
                 <span th:text="${nombreUsuario}">usuario</span>
             </h4>
-            <p class="text-muted mb-0" style="font-size:.85rem">Resumen de actividad de hoy</p>
+            <p class="mb-0 fw-semibold" style="font-size:.85rem; color:var(--color-heading)" sec:authorize="hasRole('ADMIN')">Panel de Administración</p>
+            <p class="text-muted mb-0" style="font-size:.78rem" sec:authorize="hasRole('ADMIN')">Gestión general del sistema, usuarios, médicos, agenda y configuración.</p>
+            <p class="mb-0 fw-semibold" style="font-size:.85rem; color:var(--color-heading)" sec:authorize="hasRole('RECEPCION')">Panel de Recepción</p>
+            <p class="text-muted mb-0" style="font-size:.78rem" sec:authorize="hasRole('RECEPCION')">Gestión de turnos, pacientes y agenda general de la clínica.</p>
+            <p class="mb-0 fw-semibold" style="font-size:.85rem; color:var(--color-heading)" sec:authorize="hasRole('MEDICO')">Panel de Atención Médica</p>
+            <p class="text-muted mb-0" style="font-size:.78rem" sec:authorize="hasRole('MEDICO')">Acceso a tu agenda y a la ficha asistencial de pacientes.</p>
+            <p class="mb-0 fw-semibold" style="font-size:.85rem; color:var(--color-heading)" sec:authorize="hasRole('ENFERMERIA')">Bandeja de Enfermería</p>
+            <p class="text-muted mb-0" style="font-size:.78rem" sec:authorize="hasRole('ENFERMERIA')">Pacientes del día, signos vitales y preparación para la atención médica.</p>
             <small class="text-muted text-capitalize" th:text="${hoyFormateado}"></small>
         </div>
         <a href="/turnos/nuevo" class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
