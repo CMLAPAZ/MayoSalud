@@ -11,6 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 /** Registra y consulta entradas de auditoría. Resuelve usuario e IP desde el contexto de seguridad y request actuales. */
@@ -31,7 +32,7 @@ public class AuditoriaService {
                 .detalle(detalle)
                 .usuario(usuario)
                 .ip(ip)
-                .fechaHora(LocalDateTime.now())
+                .fechaHora(LocalDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires")))
                 .build();
 
         repository.save(log);
@@ -45,7 +46,7 @@ public class AuditoriaService {
                 .detalle(detalle)
                 .usuario(usuario)
                 .ip(ip)
-                .fechaHora(LocalDateTime.now())
+                .fechaHora(LocalDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires")))
                 .build();
         repository.save(log);
     }
