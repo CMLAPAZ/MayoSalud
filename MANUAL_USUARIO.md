@@ -42,6 +42,7 @@
 15. [Portal del Paciente — acceso público](#15-portal-del-paciente--acceso-público)
 16. [Módulo Horarios de Atención](#16-módulo-horarios-de-atención)
 17. [Sitio Web Institucional](#17-sitio-web-institucional)
+18. [Funcionalidades futuras](#18-funcionalidades-futuras)
 
 ---
 
@@ -532,6 +533,27 @@ El sitio web público de Clínica Mayo (**clinicamayolapaz.com.ar**) es independ
 - El personal de la clínica accede al sistema interno desde el botón **Personal** del sitio, que dirige al login de MayoSalud.
 
 > **Para actualizar contenido del sitio web** (textos, fotos, médicos, etc.) se hace desde el panel de administración de WordPress, no desde MayoSalud. Los médicos activos en MayoSalud aparecen automáticamente en el Portal del Paciente.
+
+---
+
+## 18. Funcionalidades futuras
+
+### Teleconsulta
+
+MayoSalud podrá incorporar en una etapa futura un módulo de Teleconsulta para permitir atenciones remotas entre profesionales y pacientes, siempre que la dirección de Clínica Mayo S.R.L. lo defina y que exista revisión médica, operativa y legal previa.
+
+Esta funcionalidad podría incluir:
+
+- solicitud de teleconsulta;
+- asignación de profesional;
+- enlace seguro para videollamada;
+- registro del motivo de consulta;
+- vinculación con la Ficha Asistencial;
+- registro de evolución médica posterior;
+- notificaciones al paciente;
+- trazabilidad de la atención realizada.
+
+**Importante:** la Teleconsulta no forma parte del alcance actual del sistema. Es una funcionalidad futura y su implementación dependerá de la política institucional, del criterio médico y de la validación legal correspondiente.
 
 ---
 
