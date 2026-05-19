@@ -250,9 +250,19 @@
                 </a>
             </li>
             <li><div class="nav-section">Agenda</div></li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
-                    <i class="bi bi-calendar3"></i> Turnos
+                    <i class="bi bi-calendar3"></i> Agenda General
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('MEDICO')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Mi Agenda
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ENFERMERIA')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Turnos del Día
                 </a>
             </li>
             <li><div class="nav-section">Gestión</div></li>
@@ -263,7 +273,7 @@
             </li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO', 'ENFERMERIA')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/clinica/pacientes') ? 'active' : ''}" href="/clinica/pacientes">
-                    <i class="bi bi-clipboard2-pulse"></i> Clínica
+                    <i class="bi bi-clipboard2-pulse"></i> Atención del Paciente
                 </a>
             </li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
@@ -310,9 +320,19 @@
                 </a>
             </li>
             <li><div class="nav-section">Agenda</div></li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'RECEPCION')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
-                    <i class="bi bi-calendar3"></i> Turnos
+                    <i class="bi bi-calendar3"></i> Agenda General
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('MEDICO')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Mi Agenda
+                </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ENFERMERIA')">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/turnos') ? 'active' : ''}" href="/turnos">
+                    <i class="bi bi-calendar3"></i> Turnos del Día
                 </a>
             </li>
             <li><div class="nav-section">Gestión</div></li>
@@ -323,7 +343,7 @@
             </li>
             <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO', 'ENFERMERIA')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/clinica/pacientes') ? 'active' : ''}" href="/clinica/pacientes">
-                    <i class="bi bi-clipboard2-pulse"></i> Clínica
+                    <i class="bi bi-clipboard2-pulse"></i> Atención del Paciente
                 </a>
             </li>
 
