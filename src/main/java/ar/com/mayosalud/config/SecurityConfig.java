@@ -81,6 +81,7 @@ public class SecurityConfig {
                 // Turnos: ver agenda → todos los roles; editar formulario → ADMIN/RECEPCION
                 // Crear, cambiar estado y eliminar → solo ADMIN y RECEPCION
                 .requestMatchers(org.springframework.http.HttpMethod.GET,  "/turnos/editar/**").hasAnyRole("ADMIN", "RECEPCION")
+                .requestMatchers(org.springframework.http.HttpMethod.GET,  "/turnos/nuevo").hasAnyRole("ADMIN", "RECEPCION")
                 .requestMatchers(org.springframework.http.HttpMethod.GET,  "/turnos/**").hasAnyRole("ADMIN", "RECEPCION", "ENFERMERIA", "MEDICO")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/turnos/**").hasAnyRole("ADMIN", "RECEPCION")
 
