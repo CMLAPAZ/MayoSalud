@@ -63,6 +63,18 @@
                 <span th:if="${esHoy}" class="badge bg-success" style="font-size:.7rem;">HOY</span>
             </div>
             <div class="agenda-date-label" th:text="${fechaFormateada}"></div>
+            <small class="text-muted d-block mt-1"
+                   sec:authorize="hasAnyRole('ADMIN','RECEPCION')">
+                Desde aquí se gestiona la agenda general de turnos de la clínica.
+            </small>
+            <small class="text-muted d-block mt-1"
+                   sec:authorize="hasRole('MEDICO')">
+                Vista de tus turnos asignados. Para consultar información asistencial, usá Atención del Paciente.
+            </small>
+            <small class="text-muted d-block mt-1"
+                   sec:authorize="hasRole('ENFERMERIA')">
+                Vista de turnos del día como referencia para preparar pacientes y cargar signos vitales.
+            </small>
         </div>
         <div class="d-flex align-items-center gap-2">
             <!-- Toggle día / semana -->
