@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Ficha clínica - Pacientes')}">
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Atención del Paciente')}">
 <body>
 <main>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Ficha clínica - Pacientes</h4>
-            <small class="text-muted">Acceso restringido a roles clínicos.</small>
+            <h4 class="fw-bold mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Atención del Paciente</h4>
+            <small class="text-muted">Módulo asistencial. Acceso restringido a roles clínicos.</small>
         </div>
     </div>
 
@@ -63,7 +63,7 @@
 
             <div th:if="${pacientes == null || pacientes.isEmpty()}" class="text-center text-muted py-4">
                 <i class="bi bi-people d-block mb-2 opacity-25" style="font-size:2rem"></i>
-                No hay pacientes.
+                No se encontraron pacientes activos con ese criterio de búsqueda.
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@
 <html lang="es"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      th:replace="~{layout :: layout(~{::main}, 'Ficha clínica')}">
+      th:replace="~{layout :: layout(~{::main}, 'Ficha Asistencial')}">
 <body>
 <main>
 
@@ -14,7 +14,7 @@
         <div>
             <h4 class="fw-bold mb-0" th:text="${paciente.nombreCompleto}"></h4>
             <small class="text-muted">
-                Ficha clínica &middot; DNI: <span th:text="${paciente.dni}"></span>
+                Ficha Asistencial &middot; DNI: <span th:text="${paciente.dni}"></span>
             </small>
         </div>
     </div>
