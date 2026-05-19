@@ -138,12 +138,27 @@
                                title="Editar turno">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <!-- MEDICO / ENFERMERIA: abrir ficha clínica del paciente -->
-                            <a sec:authorize="hasAnyRole('MEDICO', 'ENFERMERIA')"
+                            <!-- ENFERMERIA: signos vitales + ficha asistencial -->
+                            <a sec:authorize="hasRole('ENFERMERIA')"
+                               th:if="${turno.paciente != null}"
+                               th:href="@{/clinica/pacientes/ver/{id}(id=${turno.paciente.id})}"
+                               class="btn btn-sm btn-outline-success"
+                               title="Cargar signos vitales">
+                                <i class="bi bi-heart-pulse"></i>
+                            </a>
+                            <a sec:authorize="hasRole('ENFERMERIA')"
                                th:if="${turno.paciente != null}"
                                th:href="@{/clinica/pacientes/ver/{id}(id=${turno.paciente.id})}"
                                class="btn btn-sm btn-outline-primary"
-                               title="Abrir ficha clínica">
+                               title="Ver ficha asistencial">
+                                <i class="bi bi-clipboard2-pulse"></i>
+                            </a>
+                            <!-- MEDICO: ficha asistencial -->
+                            <a sec:authorize="hasRole('MEDICO')"
+                               th:if="${turno.paciente != null}"
+                               th:href="@{/clinica/pacientes/ver/{id}(id=${turno.paciente.id})}"
+                               class="btn btn-sm btn-outline-primary"
+                               title="Ver ficha asistencial">
                                 <i class="bi bi-clipboard2-pulse"></i>
                             </a>
                         </td>
@@ -153,7 +168,8 @@
             <div th:if="${turnosHoy.isEmpty()}" class="text-center text-muted py-5">
                 <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-25"></i>
                 No hay turnos para hoy.
-                <a href="/turnos/nuevo" class="d-block mt-2">Agregar turno</a>
+                <a href="/turnos/nuevo" class="d-block mt-2"
+                   sec:authorize="hasAnyRole('ADMIN','RECEPCION')">Agregar turno</a>
             </div>
         </div>
     </div>
