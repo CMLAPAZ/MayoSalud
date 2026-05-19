@@ -37,20 +37,7 @@ public class ClinicaPacienteController {
     @GetMapping
     public String listar(Model model, @RequestParam(required = false) String buscar, Authentication authentication) {
         List<Paciente> pacientes;
-        Medico medicoActual = medicoActualSiRolMedico(authentication);
-        if (esRolMedico(authentication)) {
-            pacientes = medicoActual != null ? turnoService.listarPacientesPorMedico(medicoActual) : List.of();
-            if (buscar != null && !buscar.isBlank()) {
-                String termino = buscar.toLowerCase();
-                pacientes = pacientes.stream()
-                        .filter(p -> p.getNombreCompleto().toLowerCase().contains(termino)
-                                || (p.getDni() != null && p.getDni().contains(buscar)))
-                        .toList();
-                model.addAttribute("buscar", buscar);
-            }
-            model.addAttribute("clinicaFiltradaMedico", true);
-            model.addAttribute("medicoAgenda", medicoActual);
-        } else if (buscar != null && !buscar.isBlank()) {
+        if (buscar != null && !buscar.isBlank()) {
             pacientes = pacienteService.buscar(buscar);
             model.addAttribute("buscar", buscar);
         } else {
