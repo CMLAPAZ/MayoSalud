@@ -39,7 +39,7 @@
 12. [Recordatorios automáticos de turno](#12-recordatorios-automáticos-de-turno)
 13. [Seguridad y buenas prácticas](#13-seguridad-y-buenas-prácticas)
 14. [Preguntas frecuentes](#14-preguntas-frecuentes)
-15. [Portal del Paciente — acceso público](#15-portal-del-paciente--acceso-público)
+15. [Portal MayoSalud — uso interno](#15-portal-mayosalud--uso-interno)
 16. [Módulo Horarios de Atención](#16-módulo-horarios-de-atención)
 17. [Sitio Web Institucional](#17-sitio-web-institucional)
 18. [Funcionalidades futuras](#18-funcionalidades-futuras)
@@ -453,33 +453,36 @@ El sistema permite consulta institucional: un médico puede ver la Ficha Asisten
 
 ---
 
-## 15. Portal del Paciente — acceso público
+## 15. Portal MayoSalud — uso interno
 
-El **Portal del Paciente** es una página pública accesible desde el sitio web de la clínica. Los pacientes pueden consultarla **sin necesidad de crear una cuenta ni iniciar sesión**.
+El Portal MayoSalud es una funcionalidad de uso interno de Clínica Mayo S.R.L.
 
-**Acceso:** desde el sitio institucional, botón **Portal del Paciente**, o directamente en `/portal`.
+Su objetivo es facilitar la consulta rápida de información operativa relacionada con médicos, horarios de atención y disponibilidad orientativa de turnos, sin ingresar al flujo completo de gestión de agenda.
 
-### Qué puede hacer un paciente desde el portal
+Esta herramienta está pensada para personal autorizado de la clínica, especialmente para apoyo administrativo, orientación interna y consulta rápida de disponibilidad.
 
-1. **Consultar disponibilidad de turnos**
-   - Seleccionar un médico de la lista desplegable.
-   - Elegir una fecha (no se pueden seleccionar fechas pasadas).
-   - Hacer clic en **Ver horarios**.
-   - El sistema muestra los horarios del médico para ese día:
+### Qué permite consultar
 
-| Color del bloque | Significado |
-|---|---|
-| Azul | Turno **libre** — disponible |
-| Gris | Turno **ocupado** |
-| Tachado | Horario ya **pasado** |
+Según la configuración cargada en el sistema, el Portal MayoSalud puede permitir:
 
-2. **Ver los horarios de atención del médico** (días y franjas horarias que atiende habitualmente).
+- consultar médicos activos;
+- consultar especialidades disponibles;
+- consultar horarios de atención;
+- consultar disponibilidad orientativa de turnos;
+- verificar si un horario aparece libre u ocupado;
+- orientar al paciente desde la clínica antes de registrar el turno definitivo.
 
-3. **Contactar a la clínica** para confirmar el turno:
-   - Teléfono: **3437-422237**
-   - WhatsApp: **3437-402962**
+### Importante
 
-> **Importante:** el portal solo muestra disponibilidad. El turno **no se confirma automáticamente**. El paciente debe llamar o escribir por WhatsApp para que la recepción registre el turno en el sistema.
+El Portal MayoSalud no es un portal público para pacientes.
+
+Actualmente los pacientes no deben ingresar directamente a esta sección.
+
+Esta funcionalidad no confirma turnos automáticamente.
+
+La confirmación, modificación o cancelación de turnos debe realizarse desde la Agenda General por personal autorizado de Clínica Mayo S.R.L.
+
+Esta sección no permite acceder a la Ficha Asistencial ni a registros asistenciales del paciente.
 
 ---
 
