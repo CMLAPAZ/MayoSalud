@@ -302,6 +302,12 @@
                     <i class="bi bi-shield-check"></i> Auditoría
                 </a>
             </li>
+            <li><div class="nav-section">Ayuda</div></li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/manual') ? 'active' : ''}" href="/manual">
+                    <i class="bi bi-book"></i> Manual de Usuario
+                </a>
+            </li>
         </ul>
     </div>
 </div>
@@ -371,6 +377,12 @@
             <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                 <a class="nav-link" th:classappend="${requestURI.startsWith('/auditoria') ? 'active' : ''}" href="/auditoria">
                     <i class="bi bi-shield-check"></i> Auditoría
+                </a>
+            </li>
+            <li><div class="nav-section">Ayuda</div></li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${requestURI.startsWith('/manual') ? 'active' : ''}" href="/manual">
+                    <i class="bi bi-book"></i> Manual de Usuario
                 </a>
             </li>
         </ul>

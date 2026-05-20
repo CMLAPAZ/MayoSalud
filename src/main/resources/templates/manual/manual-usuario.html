@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es" th:replace="~{layout :: layout(~{::main}, 'Manual de Usuario')}"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<main>
+
+<style>
+    /* Estilos específicos del manual */
+    .manual-portada {
+        background: linear-gradient(135deg, #1E3A4F 0%, #2C5F82 60%, #5B8DB8 100%);
+        color: #fff;
+        border-radius: 14px;
+        padding: 2.5rem 2rem 2rem;
+        margin-bottom: 2rem;
+    }
+    .manual-portada h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: .4rem;
+        letter-spacing: .3px;
+    }
+    .manual-portada .subtitulo {
+        font-size: 1rem;
+        opacity: .85;
+        margin-bottom: .2rem;
+    }
+    .manual-portada .contacto {
+        font-size: .82rem;
+        opacity: .65;
+    }
+    .manual-portada .autoria {
+        font-size: .75rem;
+        opacity: .5;
+        margin-top: 1rem;
+        font-style: italic;
+    }
+
+    /* Índice */
+    .manual-indice {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .manual-indice h6 {
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #5B8DB8;
+        margin-bottom: .75rem;
+    }
+    .manual-indice ol {
+        margin-bottom: 0;
+        padding-left: 1.2rem;
+    }
+    .manual-indice li {
+        margin-bottom: .25rem;
+        font-size: .875rem;
+    }
+    .manual-indice li ul {
+        padding-left: 1rem;
+        margin-top: .2rem;
+    }
+    .manual-indice li ul li {
+        margin-bottom: .15rem;
+        font-size: .82rem;
+        color: #555;
+    }
+    .manual-indice a {
+        color: #2C5F82;
+        text-decoration: none;
+    }
+    .manual-indice a:hover {
+        text-decoration: underline;
+        color: #1E3A4F;
+    }
+
+    /* Secciones */
+    .manual-seccion {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 6px rgba(0,0,0,.07);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    .manual-seccion-header {
+        background: #1E3A4F;
+        color: #fff;
+        padding: .7rem 1.25rem;
+        font-weight: 600;
+        font-size: .95rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+    .manual-seccion-header .num {
+        background: rgba(255,255,255,.15);
+        border-radius: 6px;
+        padding: .1rem .45rem;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+    .manual-seccion-body {
+        padding: 1.25rem 1.5rem;
+    }
+    .manual-subseccion {
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f4f8;
+    }
+    .manual-subseccion:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+    .manual-subseccion h6 {
+        color: #2C5F82;
+        font-weight: 600;
+        font-size: .9rem;
+        margin-bottom: .65rem;
+    }
+
+    /* Notas / importantes */
+    .manual-nota {
+        background: #f0f6ff;
+        border-left: 3px solid #5B8DB8;
+        border-radius: 0 8px 8px 0;
+        padding: .65rem 1rem;
+        font-size: .85rem;
+        margin: .75rem 0;
+        color: #2C5F82;
+    }
+    .manual-nota.importante {
+        background: #fff8e6;
+        border-color: #f0a500;
+        color: #7a5300;
+    }
+    .manual-nota.restriccion {
+        background: #fef0f0;
+        border-color: #dc3545;
+        color: #7a1a1a;
+    }
+
+    /* Tablas */
+    .manual-tabla {
+        width: 100%;
+        font-size: .85rem;
+        border-collapse: collapse;
+        margin: .75rem 0;
+    }
+    .manual-tabla th {
+        background: #f4f7fa;
+        color: #1E3A4F;
+        font-weight: 600;
+        padding: .5rem .75rem;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+    }
+    .manual-tabla td {
+        padding: .45rem .75rem;
+        border: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+    .manual-tabla tr:nth-child(even) td {
+        background: #fafbfc;
+    }
+
+    /* Pasos numerados */
+    .manual-pasos {
+        padding-left: 1.4rem;
+        margin: .5rem 0;
+    }
+    .manual-pasos li {
+        margin-bottom: .35rem;
+        font-size: .875rem;
+    }
+
+    /* Badge de rol */
+    .rol-badge {
+        display: inline-block;
+        font-size: .7rem;
+        font-weight: 600;
+        padding: .15rem .55rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+    .rol-admin    { background: #1E3A4F; color: #fff; }
+    .rol-recepcion { background: #5B8DB8; color: #fff; }
+    .rol-medico   { background: #198754; color: #fff; }
+    .rol-enfermeria { background: #6f42c1; color: #fff; }
+
+    /* Estado badge */
+    .estado-pendiente  { background: #ffc107; color: #000; border-radius: 4px; padding: .1rem .4rem; font-size: .78rem; }
+    .estado-confirmado { background: #5B8DB8; color: #fff; border-radius: 4px; padding: .1rem .4rem; font-size: .78rem; }
+    .estado-atendido   { background: #198754; color: #fff; border-radius: 4px; padding: .1rem .4rem; font-size: .78rem; }
+    .estado-cancelado  { background: #dc3545; color: #fff; border-radius: 4px; padding: .1rem .4rem; font-size: .78rem; }
+    .estado-ausente    { background: #6c757d; color: #fff; border-radius: 4px; padding: .1rem .4rem; font-size: .78rem; }
+
+    /* Separador futuro */
+    .manual-futuro {
+        background: #f8fafc;
+        border: 1px dashed #b0c4d8;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+        color: #4a6b82;
+    }
+    .manual-futuro .futuro-badge {
+        background: #e8f0f8;
+        color: #2C5F82;
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        padding: .15rem .5rem;
+        border-radius: 4px;
+        margin-bottom: .5rem;
+        display: inline-block;
+    }
+
+    /* Botón imprimir */
+    .btn-imprimir {
+        background: #2C5F82;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: .55rem 1.2rem;
+        font-size: .875rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        text-decoration: none;
+        transition: background .15s;
+    }
+    .btn-imprimir:hover {
+        background: #1E3A4F;
+        color: #fff;
+    }
+
+    /* Pie del manual */
+    .manual-pie {
+        text-align: center;
+        color: #8ea3b5;
+        font-size: .78rem;
+        margin-top: 2rem;
+        padding: 1.25rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    /* Ancho de lectura cómodo */
+    .manual-wrapper {
+        max-width: 900px;
+    }
+
+    /* Impresión */
+    @media print {
+        .sidebar, nav.navbar, .mobile-sidebar, footer,
+        .btn-imprimir, .manual-toolbar { display: none !important; }
+        .content-area { padding: 0 !important; }
+        .manual-portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .manual-seccion { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+        .manual-seccion-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+
+<div class="manual-wrapper">
+
+    <!-- Toolbar -->
+    <div class="manual-toolbar d-flex justify-content-between align-items-center mb-3">
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Inicio
+        </a>
+        <button class="btn-imprimir" onclick="window.print()">
+            <i class="bi bi-printer"></i> Imprimir / Guardar PDF
+        </button>
+    </div>
+
+    <!-- PORTADA -->
+    <div class="manual-portada">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-book" style="font-size:2.5rem; opacity:.7; flex-shrink:0;"></i>
+            <div>
+                <h1>Manual de Usuario — MayoSalud</h1>
+                <div class="subtitulo">Clínica Mayo S.R.L. &middot; La Paz, Entre Ríos</div>
+                <div class="contacto">Tel: 422237 &nbsp;&middot;&nbsp; WhatsApp: 3437 402962</div>
+                <div class="autoria">Desarrollo y documentación: Ana Carolina Martin &middot; CM | Systems</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÍNDICE -->
+    <div class="manual-indice">
+        <h6><i class="bi bi-list-ul me-1"></i>Índice de contenidos</h6>
+        <ol>
+            <li><a href="#s1">Introducción</a></li>
+            <li><a href="#s2">Acceso al sistema</a></li>
+            <li><a href="#s3">Roles y permisos</a></li>
+            <li><a href="#s4">Pantalla de Inicio</a></li>
+            <li><a href="#s5">Módulo Agenda / Turnos</a>
+                <ul>
+                    <li><a href="#s5-1">Vistas por rol</a></li>
+                    <li><a href="#s5-2">Crear un nuevo turno</a></li>
+                    <li><a href="#s5-3">Cambiar el estado de un turno</a></li>
+                    <li><a href="#s5-4">Editar o cancelar un turno</a></li>
+                    <li><a href="#s5-5">Navegar entre fechas</a></li>
+                </ul>
+            </li>
+            <li><a href="#s6">Módulo Pacientes</a></li>
+            <li><a href="#s7">Módulo Médicos</a></li>
+            <li><a href="#s8">Módulo Atención del Paciente</a></li>
+            <li><a href="#s9">Módulo Usuarios</a></li>
+            <li><a href="#s10">Módulo Feriados</a></li>
+            <li><a href="#s11">Módulo Auditoría</a></li>
+            <li><a href="#s12">Recordatorios automáticos de turno</a></li>
+            <li><a href="#s13">Seguridad y buenas prácticas</a></li>
+            <li><a href="#s14">Preguntas frecuentes</a></li>
+            <li><a href="#s15">Portal MayoSalud — uso interno</a></li>
+            <li><a href="#s16">Módulo Horarios de Atención</a></li>
+            <li><a href="#s17">Sitio Web Institucional</a></li>
+            <li><a href="#s18">Funcionalidades futuras</a></li>
+        </ol>
+    </div>
+
+    <!-- S1: INTRODUCCIÓN -->
+    <div class="manual-seccion" id="s1">
+        <div class="manual-seccion-header">
+            <span class="num">1</span> Introducción
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2">
+                <strong>MayoSalud</strong> es la <strong>plataforma de gestión clínica y atención digital</strong>
+                de <strong>Clínica Mayo S.R.L.</strong> Permite administrar la agenda de turnos, el registro de
+                pacientes y médicos, y el seguimiento asistencial de cada paciente.
+            </p>
+            <p class="mb-2">
+                El sistema funciona desde cualquier navegador web (Chrome, Firefox, Edge) con conexión a internet.
+                No requiere instalación en la computadora.
+            </p>
+            <div class="manual-nota">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Dirección de acceso:</strong> la URL que le indique el administrador del sistema
+                (puede ser local o en la nube).
+            </div>
+        </div>
+    </div>
+
+    <!-- S2: ACCESO -->
+    <div class="manual-seccion" id="s2">
+        <div class="manual-seccion-header">
+            <span class="num">2</span> Acceso al sistema
+        </div>
+        <div class="manual-seccion-body">
+
+            <div class="manual-subseccion">
+                <h6>Iniciar sesión</h6>
+                <ol class="manual-pasos">
+                    <li>Ingresar la dirección del sistema en el navegador.</li>
+                    <li>Completar <strong>Usuario</strong> y <strong>Contraseña</strong>.</li>
+                    <li>Hacer clic en <strong>Ingresar</strong>.</li>
+                </ol>
+                <div class="manual-nota">
+                    Si olvidó su contraseña, comuníquese con el administrador del sistema.
+                </div>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>Cierre de sesión automático</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    La sesión se cierra automáticamente después de <strong>30 minutos de inactividad</strong>.
+                    Al volver a la pantalla aparecerá el mensaje <em>"Su sesión ha expirado"</em>.
+                    Ingrese nuevamente con su usuario y contraseña.
+                </p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>Bloqueo por intentos fallidos</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Tras <strong>5 intentos fallidos consecutivos</strong> el usuario queda bloqueado durante
+                    <strong>15 minutos</strong>. Pasado ese tiempo se desbloquea automáticamente.
+                </p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>Cerrar sesión manualmente</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Hacer clic en el botón <strong>Salir</strong> (esquina superior derecha de la barra de navegación).
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- S3: ROLES -->
+    <div class="manual-seccion" id="s3">
+        <div class="manual-seccion-header">
+            <span class="num">3</span> Roles y permisos
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">El sistema tiene cuatro roles. Cada usuario tiene asignado uno de ellos.</p>
+            <div style="overflow-x:auto;">
+                <table class="manual-tabla">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Descripción</th>
+                            <th>Accesos principales</th>
+                            <th>Restricciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="rol-badge rol-admin">ADMIN</span></td>
+                            <td>Administrador del sistema</td>
+                            <td>Usuarios, médicos, auditoría, agenda, pacientes, Atención del Paciente, configuración</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-recepcion">RECEPCION</span></td>
+                            <td>Personal de recepción</td>
+                            <td>Agenda General, pacientes administrativos, médicos (lectura)</td>
+                            <td>Sin acceso a Atención del Paciente ni registros asistenciales</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-medico">MEDICO</span></td>
+                            <td>Médico de la clínica</td>
+                            <td>Mi Agenda (solo sus turnos), Atención del Paciente, Ficha Asistencial</td>
+                            <td>No crea, edita ni cancela turnos</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-enfermeria">ENFERMERIA</span></td>
+                            <td>Personal de enfermería</td>
+                            <td>Turnos del Día (referencia), Atención del Paciente, Ficha Asistencial (signos vitales)</td>
+                            <td>No crea, edita ni cancela turnos; no carga evolución médica</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="manual-nota" style="margin-top:.75rem;">
+                <strong>MEDICO:</strong> puede consultar la Ficha Asistencial de cualquier paciente activo de la
+                institución para atención, interconsulta, guardia, reemplazo o continuidad asistencial.
+                Puede ver signos vitales registrados, pero no cargarlos.
+            </div>
+            <div class="manual-nota">
+                <strong>RECEPCION:</strong> gestiona toda la operativa de agenda pero no tiene acceso a registros
+                clínicos. Esta separación protege la confidencialidad asistencial.
+            </div>
+            <div class="manual-nota importante">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Si al intentar acceder a una sección aparece el mensaje <em>"Acceso denegado"</em>, significa que
+                su rol no tiene permiso para esa función. Consulte con el administrador.
+            </div>
+        </div>
+    </div>
+
+    <!-- S4: INICIO -->
+    <div class="manual-seccion" id="s4">
+        <div class="manual-seccion-header">
+            <span class="num">4</span> Pantalla de Inicio
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">Al ingresar, el sistema muestra un <strong>panel de inicio personalizado según el rol</strong>:</p>
+            <div style="overflow-x:auto;">
+                <table class="manual-tabla">
+                    <thead>
+                        <tr><th>Rol</th><th>Nombre del panel</th><th>Contenido principal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="rol-badge rol-admin">ADMIN</span></td>
+                            <td>Panel de Administración</td>
+                            <td>Estadísticas generales, agenda del día, accesos rápidos a todos los módulos</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-recepcion">RECEPCION</span></td>
+                            <td>Panel de Recepción</td>
+                            <td>Agenda del día, contadores de turnos por estado, acceso rápido a nuevo turno y a pacientes</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-medico">MEDICO</span></td>
+                            <td>Panel de Atención Médica</td>
+                            <td>Sus turnos del día, acceso directo a Atención del Paciente</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rol-badge rol-enfermeria">ENFERMERIA</span></td>
+                            <td>Bandeja de Enfermería</td>
+                            <td>Turnos del día como referencia, acceso directo a Ficha Asistencial por paciente</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mb-1 mt-2" style="font-size:.875rem;">
+                El personal de <strong>ADMIN y RECEPCION</strong> ve el selector de estado y el ícono de edición
+                en cada turno.
+            </p>
+            <p class="mb-0" style="font-size:.875rem;">
+                El personal de <strong>MEDICO y ENFERMERIA</strong> ve el ícono de Ficha Asistencial en cada turno.
+            </p>
+            <div class="manual-nota" style="margin-top:.75rem;">
+                <i class="bi bi-clock me-1"></i>
+                El reloj digital en la barra superior muestra la hora actual actualizada en tiempo real.
+            </div>
+        </div>
+    </div>
+
+    <!-- S5: AGENDA -->
+    <div class="manual-seccion" id="s5">
+        <div class="manual-seccion-header">
+            <span class="num">5</span> Módulo Agenda / Turnos
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">El menú lateral muestra un nombre diferente según el rol:</p>
+            <div style="overflow-x:auto;">
+                <table class="manual-tabla">
+                    <thead>
+                        <tr><th>Rol</th><th>Nombre en el menú</th><th>Vista</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ADMIN / RECEPCION</td>
+                            <td>Agenda General</td>
+                            <td>Todos los turnos de la clínica</td>
+                        </tr>
+                        <tr>
+                            <td>MEDICO</td>
+                            <td>Mi Agenda</td>
+                            <td>Solo los turnos asignados al médico autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>ENFERMERIA</td>
+                            <td>Turnos del Día</td>
+                            <td>Turnos del día como referencia de flujo asistencial</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mb-0 mt-2" style="font-size:.875rem;">Cada vista muestra un mensaje de orientación contextual al pie del encabezado.</p>
+
+            <div class="manual-subseccion" id="s5-1">
+                <h6>5.1 Vistas por rol</h6>
+                <p style="font-size:.875rem;"><strong>Agenda General</strong> <span class="rol-badge rol-admin">ADMIN</span> <span class="rol-badge rol-recepcion">RECEPCION</span></p>
+                <p style="font-size:.875rem;">
+                    Muestra todos los turnos del día seleccionado para todos los médicos. Permite crear, editar,
+                    cambiar estado y eliminar turnos. Incluye resumen de contadores por estado y acceso al menú
+                    de impresión.
+                </p>
+                <div class="manual-nota"><em>"Desde aquí se gestiona la agenda general de turnos de la clínica."</em></div>
+
+                <p style="font-size:.875rem;" class="mt-2"><strong>Mi Agenda</strong> <span class="rol-badge rol-medico">MEDICO</span></p>
+                <p style="font-size:.875rem;">
+                    Muestra únicamente los turnos del día asignados al médico autenticado. Es de solo lectura.
+                    Desde cada turno se puede abrir la Ficha Asistencial del paciente.
+                </p>
+                <div class="manual-nota"><em>"Vista de tus turnos asignados. Para consultar información asistencial, usá Atención del Paciente."</em></div>
+
+                <p style="font-size:.875rem;" class="mt-2"><strong>Turnos del Día</strong> <span class="rol-badge rol-enfermeria">ENFERMERIA</span></p>
+                <p style="font-size:.875rem;">
+                    Muestra los turnos del día como referencia para preparar pacientes y registrar signos vitales.
+                    Es de solo lectura. Desde cada turno se puede abrir la Ficha Asistencial.
+                </p>
+                <div class="manual-nota"><em>"Vista de turnos del día como referencia para preparar pacientes y cargar signos vitales."</em></div>
+
+                <p style="font-size:.875rem;" class="mt-2"><strong>Estados de turno:</strong></p>
+                <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.35rem;">
+                    <span class="estado-pendiente">Pendiente</span>
+                    <span class="estado-confirmado">Confirmado</span>
+                    <span class="estado-atendido">Atendido</span>
+                    <span class="estado-cancelado">Cancelado</span>
+                    <span class="estado-ausente">Ausente</span>
+                </div>
+            </div>
+
+            <div class="manual-subseccion" id="s5-2">
+                <h6>5.2 Crear un nuevo turno</h6>
+                <div class="manual-nota restriccion">
+                    <i class="bi bi-lock me-1"></i>
+                    <strong>Solo ADMIN y RECEPCION</strong> pueden crear nuevos turnos. MEDICO y ENFERMERIA
+                    no tienen acceso al formulario de nuevo turno.
+                </div>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en <strong>Nuevo turno</strong> (botón azul, arriba a la derecha).</li>
+                    <li>Completar: Paciente, Médico, Fecha y hora, Motivo de consulta (opcional).</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+                <div class="manual-nota">
+                    Si el médico ya tiene un turno en ese horario, el sistema mostrará un aviso de conflicto y
+                    no permitirá guardar.
+                </div>
+            </div>
+
+            <div class="manual-subseccion" id="s5-3">
+                <h6>5.3 Cambiar el estado de un turno</h6>
+                <p style="font-size:.875rem;">Desde la tarjeta de turno en la agenda, usar los botones de acción rápida:</p>
+                <ul class="manual-pasos">
+                    <li><strong>Confirmar</strong> → pasa a estado Confirmado</li>
+                    <li><strong>Atender</strong> → pasa a estado Atendido</li>
+                    <li><strong>Cancelar</strong> → pasa a estado Cancelado</li>
+                    <li><strong>Ausente</strong> → pasa a estado Ausente</li>
+                </ul>
+            </div>
+
+            <div class="manual-subseccion" id="s5-4">
+                <h6>5.4 Editar o cancelar un turno</h6>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en el ícono de <strong>lápiz</strong> sobre el turno.</li>
+                    <li>Modificar los datos necesarios.</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+                <p class="mb-0" style="font-size:.875rem;">
+                    ADMIN y RECEPCION gestionan la agenda; MEDICO y ENFERMERIA no pueden modificar turnos.
+                </p>
+            </div>
+
+            <div class="manual-subseccion" id="s5-5">
+                <h6>5.5 Navegar entre fechas</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Usar los botones <strong>← Anterior</strong> y <strong>Siguiente →</strong> para moverse entre días.
+                    El botón <strong>Hoy</strong> vuelve a la fecha actual.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- S6: PACIENTES -->
+    <div class="manual-seccion" id="s6">
+        <div class="manual-seccion-header">
+            <span class="num">6</span> Módulo Pacientes
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-1" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Pacientes</strong><br>
+                <em class="text-muted" style="font-size:.82rem;">Disponible para ADMIN y RECEPCION.</em>
+            </p>
+            <div class="manual-nota importante">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                <strong>Esta sección es exclusivamente administrativa.</strong> Contiene datos personales, de
+                contacto y de cobertura médica del paciente. No incluye historia clínica, evoluciones médicas ni
+                registros asistenciales. Para acceder a la información clínica de un paciente, usar el módulo
+                <strong>Atención del Paciente</strong> (Sección 8).
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>6.1 Buscar un paciente</h6>
+                <p class="mb-0" style="font-size:.875rem;">En la barra de búsqueda ingresar el nombre o apellido. La lista se filtra automáticamente.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>6.2 Registrar un nuevo paciente</h6>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en <strong>Nuevo paciente</strong>.</li>
+                    <li>Completar datos personales: apellido y nombre, DNI, fecha de nacimiento, sexo, dirección, teléfono, email.</li>
+                    <li>Completar la cobertura médica: obra social y nro. de afiliado.</li>
+                    <li>Completar antecedentes y alergias (opcional). Si se utilizan, deben considerarse información sensible de apoyo y cargarse según el criterio institucional.</li>
+                    <li>Marcar el <strong>consentimiento informado</strong> (obligatorio, requerido por Ley 25.326).</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+                <div class="manual-nota">El sistema registra automáticamente la fecha y hora en que se otorgó el consentimiento.</div>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>6.3 Editar datos de un paciente</h6>
+                <ol class="manual-pasos">
+                    <li>Buscar el paciente en la lista.</li>
+                    <li>Hacer clic en el ícono de <strong>lápiz</strong>.</li>
+                    <li>Modificar los datos necesarios.</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>6.4 Ver ficha completa del paciente</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Hacer clic en el nombre del paciente o en el ícono de detalle para ver datos personales,
+                    cobertura médica e historial de turnos. Para acceder a la Ficha Asistencial, usar el módulo
+                    Atención del Paciente.
+                </p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>6.5 Dar de baja un paciente</h6>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Hacer clic en el ícono de baja. El registro se conserva en el sistema (baja lógica) pero no
+                    aparece en la lista activa. Esto permite conservar el historial del paciente y la trazabilidad
+                    de sus registros, evitando pérdida de información.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- S7: MÉDICOS -->
+    <div class="manual-seccion" id="s7">
+        <div class="manual-seccion-header">
+            <span class="num">7</span> Módulo Médicos
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Médicos</strong><br>
+                <em class="text-muted" style="font-size:.82rem;">Disponible para ADMIN. RECEPCION puede consultar la lista en modo lectura.</em>
+            </p>
+
+            <div class="manual-subseccion">
+                <h6>7.1 Registrar un médico</h6>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en <strong>Nuevo médico</strong>.</li>
+                    <li>Completar apellido, nombre, DNI, matrícula y especialidad.</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+                <div class="manual-nota">El DNI y la matrícula deben ser únicos. El sistema no permite duplicados.</div>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>7.2 Editar o dar de baja un médico</h6>
+                <ul class="manual-pasos">
+                    <li><strong>Editar:</strong> clic en el ícono de lápiz → modificar datos → Guardar.</li>
+                    <li><strong>Dar de baja:</strong> clic en el ícono de baja. El médico deja de aparecer en el selector de turnos pero sus registros históricos se conservan.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- S8: ATENCIÓN DEL PACIENTE -->
+    <div class="manual-seccion" id="s8">
+        <div class="manual-seccion-header">
+            <span class="num">8</span> Módulo Atención del Paciente
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-1" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Atención del Paciente</strong><br>
+                <em class="text-muted" style="font-size:.82rem;">Disponible para ADMIN, MEDICO y ENFERMERIA.</em>
+            </p>
+            <div class="manual-nota restriccion">
+                <i class="bi bi-lock me-1"></i>
+                El módulo muestra el mensaje: <em>"Módulo asistencial para consulta clínica, signos vitales,
+                evoluciones y estudios. Acceso restringido a roles clínicos."</em>
+                El personal de RECEPCION no tiene acceso a esta sección.
+            </div>
+            <p class="mb-0 mt-1" style="font-size:.875rem;">El módulo registra todos los eventos asistenciales del paciente de forma cronológica.</p>
+
+            <div class="manual-subseccion" id="s8-1">
+                <h6>8.1 Acceder a la Ficha Asistencial</h6>
+                <p style="font-size:.875rem;"><strong>Desde el menú Atención del Paciente:</strong></p>
+                <ol class="manual-pasos">
+                    <li>Buscar el paciente por nombre o apellido.</li>
+                    <li>Hacer clic en el nombre para abrir la Ficha Asistencial.</li>
+                </ol>
+                <p style="font-size:.875rem;"><strong>Desde la agenda del día (MEDICO / ENFERMERIA):</strong></p>
+                <ul class="manual-pasos">
+                    <li>Hacer clic en el ícono de <strong>Ficha Asistencial</strong> junto al turno del paciente.</li>
+                </ul>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>8.2 Registrar signos vitales (Enfermería)</h6>
+                <div class="manual-nota">
+                    Disponible para <strong>ADMIN</strong> y <strong>ENFERMERIA</strong>.
+                    MEDICO puede ver los signos vitales registrados, pero no cargar nuevos registros.
+                </div>
+                <ol class="manual-pasos">
+                    <li>Abrir la Ficha Asistencial del paciente.</li>
+                    <li>Seleccionar la pestaña <strong>Signos Vitales</strong>.</li>
+                    <li>Completar los campos disponibles: temperatura, presión, pulso, saturación, peso, talla, observaciones.</li>
+                    <li>Hacer clic en <strong>Guardar signos vitales</strong>.</li>
+                </ol>
+                <p class="mb-0" style="font-size:.875rem;">El registro queda guardado con fecha, hora y nombre del usuario que lo ingresó.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>8.3 Registrar evolución médica (Médico)</h6>
+                <div class="manual-nota">Disponible para <strong>ADMIN</strong> y <strong>MEDICO</strong>.</div>
+                <ol class="manual-pasos">
+                    <li>Abrir la Ficha Asistencial del paciente.</li>
+                    <li>Seleccionar la pestaña <strong>Evolución Médica</strong>.</li>
+                    <li>Completar: motivo de consulta, diagnóstico, tratamiento, observaciones.</li>
+                    <li>Hacer clic en <strong>Guardar evolución</strong>.</li>
+                </ol>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>8.4 Cargar un estudio (Médico)</h6>
+                <div class="manual-nota">Disponible para <strong>ADMIN</strong> y <strong>MEDICO</strong>.</div>
+                <ol class="manual-pasos">
+                    <li>Abrir la Ficha Asistencial del paciente.</li>
+                    <li>Seleccionar la pestaña <strong>Estudios</strong>.</li>
+                    <li>Completar: tipo de estudio, estado (Solicitado / Realizado / Informado / Cancelado), observaciones.</li>
+                    <li>Hacer clic en <strong>Guardar estudio</strong>.</li>
+                </ol>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>8.5 Línea de tiempo asistencial</h6>
+                <p style="font-size:.875rem;">
+                    En la parte inferior de la Ficha Asistencial se muestra una <strong>línea de tiempo</strong>
+                    con los últimos 20 eventos registrados del paciente, ordenados del más reciente al más antiguo.
+                </p>
+                <p class="mb-0" style="font-size:.875rem;">
+                    Cada evento indica: tipo (Signos Vitales, Evolución Médica o Estudio) con color identificador,
+                    fecha y hora, usuario que lo registró, y resumen del contenido.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- S9: USUARIOS -->
+    <div class="manual-seccion" id="s9">
+        <div class="manual-seccion-header">
+            <span class="num">9</span> Módulo Usuarios
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Usuarios</strong><br>
+                <em class="text-muted" style="font-size:.82rem;">Disponible solo para ADMIN.</em>
+            </p>
+            <p class="mb-2" style="font-size:.875rem;">Permite crear y gestionar las cuentas de acceso al sistema.</p>
+            <div class="manual-subseccion">
+                <h6>Crear un usuario</h6>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en <strong>Nuevo usuario</strong>.</li>
+                    <li>Completar nombre de usuario, nombre completo, contraseña y rol.</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+            </div>
+            <div class="manual-subseccion">
+                <h6>Otras acciones</h6>
+                <ul class="manual-pasos">
+                    <li><strong>Cambiar contraseña o rol:</strong> hacer clic en el ícono de edición del usuario.</li>
+                    <li><strong>Desactivar un usuario:</strong> hacer clic en el ícono de baja. El usuario no podrá iniciar sesión.</li>
+                </ul>
+            </div>
+            <div class="manual-nota importante">
+                <i class="bi bi-shield me-1"></i>
+                <strong>Buena práctica:</strong> crear un usuario personal para cada empleado. No compartir cuentas.
+            </div>
+        </div>
+    </div>
+
+    <!-- S10: FERIADOS -->
+    <div class="manual-seccion" id="s10">
+        <div class="manual-seccion-header">
+            <span class="num">10</span> Módulo Feriados
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-0" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Feriados</strong>
+                — disponible solo para ADMIN.<br>
+                Permite registrar los días feriados para que el sistema los tenga en cuenta al gestionar la agenda.
+            </p>
+        </div>
+    </div>
+
+    <!-- S11: AUDITORÍA -->
+    <div class="manual-seccion" id="s11">
+        <div class="manual-seccion-header">
+            <span class="num">11</span> Módulo Auditoría
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-1" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Auditoría</strong><br>
+                <em class="text-muted" style="font-size:.82rem;">Disponible solo para ADMIN.</em>
+            </p>
+            <div class="manual-nota">
+                El módulo muestra el mensaje: <em>"Registro de operaciones del sistema. Uso reservado para administración."</em>
+            </div>
+            <p class="mb-2 mt-1" style="font-size:.875rem;">Muestra un registro completo de todas las operaciones realizadas en el sistema:</p>
+            <div style="overflow-x:auto;">
+                <table class="manual-tabla">
+                    <thead>
+                        <tr><th>Acción</th><th>Descripción</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>CREAR</code></td><td>Alta de un registro</td></tr>
+                        <tr><td><code>MODIFICAR</code></td><td>Edición de datos</td></tr>
+                        <tr><td><code>BAJA</code></td><td>Baja lógica de un registro</td></tr>
+                        <tr><td><code>ELIMINAR</code></td><td>Eliminación de un turno</td></tr>
+                        <tr><td><code>LOGIN_FALLIDO</code></td><td>Intento de acceso con credenciales incorrectas</td></tr>
+                        <tr><td><code>BLOQUEADO</code></td><td>Cuenta bloqueada por exceso de intentos fallidos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-2 mb-0" style="font-size:.875rem;">
+                <strong>Filtros disponibles:</strong> rango de fechas y nombre de usuario.<br>
+                Cada registro muestra: fecha y hora, usuario, acción, entidad afectada y dirección IP.
+            </p>
+        </div>
+    </div>
+
+    <!-- S12: RECORDATORIOS -->
+    <div class="manual-seccion" id="s12">
+        <div class="manual-seccion-header">
+            <span class="num">12</span> Recordatorios automáticos de turno
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                El sistema envía automáticamente un <strong>correo electrónico</strong> a cada paciente con turno
+                confirmado o pendiente para el día siguiente.
+            </p>
+            <ul class="manual-pasos">
+                <li><strong>Horario de envío:</strong> todos los días a las 8:00 hs (hora Argentina).</li>
+                <li><strong>Remitente:</strong> clinicamayolp@gmail.com</li>
+                <li><strong>Contenido:</strong> fecha, hora, médico, especialidad y motivo del turno.</li>
+            </ul>
+            <div class="manual-nota">
+                Para que el recordatorio llegue, el paciente debe tener un email registrado en su ficha.
+                Si el campo email está vacío, no se envía el correo.
+            </div>
+            <div class="manual-nota importante">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Para activar el envío de correos es necesario configurar las variables
+                <code>MAIL_USERNAME</code> y <code>MAIL_PASSWORD</code> en Clever Cloud.
+                Si no están configuradas, los recordatorios no se envían.
+            </div>
+        </div>
+    </div>
+
+    <!-- S13: SEGURIDAD -->
+    <div class="manual-seccion" id="s13">
+        <div class="manual-seccion-header">
+            <span class="num">13</span> Seguridad y buenas prácticas
+        </div>
+        <div class="manual-seccion-body">
+            <div class="manual-subseccion">
+                <h6>Restricciones de acceso por rol</h6>
+                <div style="overflow-x:auto;">
+                    <table class="manual-tabla">
+                        <thead>
+                            <tr><th>Intento de acceso</th><th>Resultado</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MEDICO o ENFERMERIA intenta crear, editar o cancelar un turno</td>
+                                <td>Acceso denegado (HTTP 403)</td>
+                            </tr>
+                            <tr>
+                                <td>RECEPCION intenta acceder a Atención del Paciente</td>
+                                <td>Acceso denegado (HTTP 403)</td>
+                            </tr>
+                            <tr>
+                                <td>Cualquier rol intenta acceder a una ruta no permitida</td>
+                                <td>Redirección a pantalla de error</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="manual-subseccion">
+                <h6>Buenas prácticas</h6>
+                <ul class="manual-pasos">
+                    <li><strong>No comparta su contraseña</strong> con otras personas.</li>
+                    <li><strong>Cierre sesión</strong> al terminar de trabajar, especialmente en computadoras compartidas.</li>
+                    <li>Si sospecha que alguien usó su cuenta sin autorización, comuníquelo al administrador de inmediato.</li>
+                    <li>El sistema registra todas las operaciones con el nombre del usuario responsable y la dirección IP.</li>
+                    <li>Las contraseñas se almacenan cifradas: ni el administrador puede ver su contraseña actual.</li>
+                    <li><strong>Cambie su contraseña</strong> periódicamente desde el módulo Usuarios.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- S14: FAQ -->
+    <div class="manual-seccion" id="s14">
+        <div class="manual-seccion-header">
+            <span class="num">14</span> Preguntas frecuentes
+        </div>
+        <div class="manual-seccion-body">
+
+            <div class="manual-subseccion">
+                <h6>¿Por qué no puedo ver el menú de Pacientes?</h6>
+                <p class="mb-0" style="font-size:.875rem;">Su rol no tiene acceso a esa sección. El menú de Pacientes está disponible para ADMIN y RECEPCION.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿Por qué no puedo ingresar un turno nuevo?</h6>
+                <p class="mb-0" style="font-size:.875rem;">Solo ADMIN y RECEPCION pueden crear y editar turnos. MEDICO y ENFERMERIA tienen acceso de solo lectura. Si necesitás registrar un turno, comunicalo a recepción.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿El sistema perdió mis datos al cerrarse?</h6>
+                <p class="mb-0" style="font-size:.875rem;">La sesión expira a los 30 minutos de inactividad. Los datos guardados antes del cierre están a salvo. Los datos no guardados (formularios sin confirmar) se pierden.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿Puedo recuperar un paciente dado de baja?</h6>
+                <p class="mb-0" style="font-size:.875rem;">Sí, el administrador puede reactivar un paciente dado de baja desde el módulo de Usuarios o contactando al soporte técnico.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿Qué hago si el sistema no responde?</h6>
+                <p class="mb-0" style="font-size:.875rem;">Verificar la conexión a internet. Si el problema persiste, comunicarse con el administrador del sistema.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿Cómo sé si el recordatorio de turno llegó al paciente?</h6>
+                <p class="mb-0" style="font-size:.875rem;">El módulo de Auditoría registra el resultado del envío diario de recordatorios con el detalle de cuántos correos se enviaron, cuántos pacientes no tenían email y si hubo errores.</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>¿Por qué MEDICO puede ver la Ficha Asistencial de un paciente que no es "suyo"?</h6>
+                <p class="mb-0" style="font-size:.875rem;">El sistema permite consulta institucional: un médico puede ver la Ficha Asistencial de cualquier paciente activo por razones de atención, interconsulta, guardia, reemplazo o continuidad asistencial. Esto es intencional y responde al criterio de atención institucional. En una etapa futura puede agregarse auditoría específica del motivo de consulta por interconsulta.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- S15: PORTAL -->
+    <div class="manual-seccion" id="s15">
+        <div class="manual-seccion-header">
+            <span class="num">15</span> Portal MayoSalud — uso interno
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                El Portal MayoSalud es una funcionalidad de <strong>uso interno</strong> de Clínica Mayo S.R.L.
+                Su objetivo es facilitar la consulta rápida de información operativa relacionada con médicos,
+                horarios de atención y disponibilidad orientativa de turnos, sin ingresar al flujo completo de
+                gestión de agenda.
+            </p>
+            <p class="mb-2" style="font-size:.875rem;">
+                Esta herramienta está pensada para personal autorizado de la clínica, especialmente para apoyo
+                administrativo, orientación interna y consulta rápida de disponibilidad.
+            </p>
+
+            <div class="manual-subseccion">
+                <h6>Qué permite consultar</h6>
+                <ul class="manual-pasos">
+                    <li>Médicos activos y especialidades disponibles.</li>
+                    <li>Horarios de atención.</li>
+                    <li>Disponibilidad orientativa de turnos.</li>
+                    <li>Verificar si un horario aparece libre u ocupado.</li>
+                    <li>Orientar al paciente desde la clínica antes de registrar el turno definitivo.</li>
+                </ul>
+            </div>
+
+            <div class="manual-nota importante">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                <strong>El Portal MayoSalud no es un portal público para pacientes.</strong>
+                Actualmente los pacientes no deben ingresar directamente a esta sección.
+                Esta funcionalidad no confirma turnos automáticamente.
+                La confirmación, modificación o cancelación de turnos debe realizarse desde la Agenda General
+                por personal autorizado.
+                Esta sección no permite acceder a la Ficha Asistencial ni a registros asistenciales.
+            </div>
+        </div>
+    </div>
+
+    <!-- S16: HORARIOS -->
+    <div class="manual-seccion" id="s16">
+        <div class="manual-seccion-header">
+            <span class="num">16</span> Módulo Horarios de Atención
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                Acceso desde el menú lateral: <strong>Horarios</strong> — disponible para ADMIN.<br>
+                Permite definir los días y horarios en que cada médico atiende en la clínica.
+            </p>
+
+            <div class="manual-subseccion">
+                <h6>Cargar horario de un médico</h6>
+                <ol class="manual-pasos">
+                    <li>Hacer clic en <strong>Nuevo horario</strong>.</li>
+                    <li>Seleccionar el médico y el día de la semana.</li>
+                    <li>Ingresar la hora de inicio y la hora de fin.</li>
+                    <li>Hacer clic en <strong>Guardar</strong>.</li>
+                </ol>
+                <p class="mb-0" style="font-size:.875rem;">Se pueden cargar múltiples franjas por médico (ej: Lunes 8:00–12:00 y Lunes 15:00–19:00).</p>
+            </div>
+
+            <div class="manual-subseccion">
+                <h6>Editar o eliminar un horario</h6>
+                <ul class="manual-pasos">
+                    <li><strong>Editar:</strong> clic en el ícono de lápiz → modificar → Guardar.</li>
+                    <li><strong>Eliminar:</strong> clic en el ícono de papelera.</li>
+                </ul>
+                <div class="manual-nota">Si un médico no tiene horarios cargados, el Portal mostrará "Sin horarios cargados" al seleccionarlo.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- S17: SITIO WEB -->
+    <div class="manual-seccion" id="s17">
+        <div class="manual-seccion-header">
+            <span class="num">17</span> Sitio Web Institucional
+        </div>
+        <div class="manual-seccion-body">
+            <p class="mb-2" style="font-size:.875rem;">
+                El sitio web público de Clínica Mayo (<strong>clinicamayolapaz.com.ar</strong>) es independiente
+                del sistema MayoSalud. Está construido en WordPress.
+            </p>
+            <div style="overflow-x:auto;">
+                <table class="manual-tabla">
+                    <thead>
+                        <tr><th>Página</th><th>Contenido</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Inicio</strong></td><td>Presentación general, estadísticas, médicos destacados</td></tr>
+                        <tr><td><strong>Médicos</strong></td><td>Listado de profesionales y especialidades</td></tr>
+                        <tr><td><strong>Especialidades</strong></td><td>Grilla de especialidades disponibles</td></tr>
+                        <tr><td><strong>Equipo</strong></td><td>Socios institucionales, fundadores e históricos, staff</td></tr>
+                        <tr><td><strong>Nosotros</strong></td><td>Historia, misión y valores de la clínica</td></tr>
+                        <tr><td><strong>Contacto</strong></td><td>Teléfonos, WhatsApp y horarios de atención</td></tr>
+                        <tr><td><strong>Portal del Paciente</strong></td><td>Acceso al portal de consulta de turnos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="manual-subseccion">
+                <h6>Relación entre el sitio web y MayoSalud</h6>
+                <ul class="manual-pasos">
+                    <li>El sitio web es <strong>solo informativo</strong> (gestionado en WordPress).</li>
+                    <li>El <strong>Portal del Paciente</strong> está alojado dentro de MayoSalud y consume datos reales del sistema.</li>
+                    <li>El personal de la clínica accede al sistema interno desde el botón <strong>Personal</strong> del sitio.</li>
+                </ul>
+                <div class="manual-nota">
+                    Para actualizar contenido del sitio web (textos, fotos, médicos, etc.) se hace desde el panel
+                    de administración de WordPress, no desde MayoSalud.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- S18: FUTURO -->
+    <div class="manual-seccion" id="s18">
+        <div class="manual-seccion-header">
+            <span class="num">18</span> Funcionalidades futuras
+        </div>
+        <div class="manual-seccion-body">
+            <div class="manual-futuro">
+                <span class="futuro-badge"><i class="bi bi-hourglass-split me-1"></i>Futuro</span>
+                <h6 class="fw-semibold mb-1" style="color:#2C5F82;">Teleconsulta</h6>
+                <p class="mb-2" style="font-size:.875rem;">
+                    MayoSalud podrá incorporar en una etapa futura un módulo de Teleconsulta para permitir
+                    atenciones remotas entre profesionales y pacientes, siempre que la dirección de Clínica Mayo
+                    S.R.L. lo defina y que exista revisión médica, operativa y legal previa.
+                </p>
+                <p class="mb-2" style="font-size:.875rem;">Esta funcionalidad podría incluir:</p>
+                <ul class="manual-pasos">
+                    <li>Solicitud de teleconsulta y asignación de profesional.</li>
+                    <li>Enlace seguro para videollamada.</li>
+                    <li>Registro del motivo de consulta y vinculación con la Ficha Asistencial.</li>
+                    <li>Registro de evolución médica posterior.</li>
+                    <li>Notificaciones al paciente y trazabilidad de la atención realizada.</li>
+                </ul>
+                <div class="manual-nota importante" style="margin-top:.5rem;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    La Teleconsulta no forma parte del alcance actual del sistema. Su implementación dependerá
+                    de la política institucional, del criterio médico y de la validación legal correspondiente.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE -->
+    <div class="manual-pie">
+        <p class="mb-1"><strong>MayoSalud</strong> — Clínica Mayo S.R.L. &middot; La Paz, Entre Ríos</p>
+        <p class="mb-0">Tel: 422237 &nbsp;&middot;&nbsp; WhatsApp: 3437 402962<br>
+        Desarrollo y documentación: Ana Carolina Martin &middot; CM | Systems</p>
+    </div>
+
+</div><!-- /manual-wrapper -->
+
+</main>
+</body>
+</html>
