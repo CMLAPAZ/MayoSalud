@@ -36,10 +36,18 @@ public class RecordatorioScheduler {
     public void enviarRecordatorios() {
         if (!habilitado) {
             log.info("Recordatorios deshabilitados (recordatorio.habilitado=false)");
+            auditoriaService.registrar("RECORDATORIOS_EMAIL", "Turno",
+                    LocalDate.now().plusDays(1).toString(),
+                    "Recordatorios deshabilitados (recordatorio.habilitado=false)",
+                    "sistema", "scheduler");
             return;
         }
         if (mailUsername == null || mailUsername.isBlank()) {
             log.warn("Recordatorios omitidos: MAIL_USERNAME no configurado");
+            auditoriaService.registrar("RECORDATORIOS_EMAIL", "Turno",
+                    LocalDate.now().plusDays(1).toString(),
+                    "Recordatorios omitidos: MAIL_USERNAME no configurado",
+                    "sistema", "scheduler");
             return;
         }
 

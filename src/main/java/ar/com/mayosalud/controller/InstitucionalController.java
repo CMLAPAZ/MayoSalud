@@ -60,6 +60,23 @@ public class InstitucionalController {
     }
 
     /**
+     * Portal público del paciente
+     */
+    @GetMapping("/portal")
+    public String portal() {
+        return "institucional/portal";
+    }
+
+    /**
+     * Equipo: socios fundadores y personal de la clínica
+     */
+    @GetMapping("/equipo")
+    public String equipo(Model model) {
+        model.addAttribute("medicosActivos", medicoService.listarActivos());
+        return "institucional/equipo";
+    }
+
+    /**
      * Página de contacto
      */
     @GetMapping("/contacto")
