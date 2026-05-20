@@ -242,7 +242,7 @@ Hacer clic en el nombre del paciente o en el ícono de **detalle** para ver:
 
 ### 6.5 Dar de baja un paciente
 
-Hacer clic en el ícono de **baja** sobre el paciente. El registro se conserva en el sistema (baja lógica) pero no aparece en la lista activa. Esto garantiza el historial clínico conforme a la Ley 26.529.
+Hacer clic en el ícono de **baja** sobre el paciente. El registro se conserva en el sistema (baja lógica) pero no aparece en la lista activa. Esto permite conservar el historial del paciente y la trazabilidad de sus registros, evitando pérdida de información.
 
 ---
 
@@ -282,7 +282,7 @@ El módulo registra todos los eventos asistenciales del paciente de forma cronol
 2. Hacer clic en el nombre para abrir la Ficha Asistencial.
 
 **Desde la agenda del día (MEDICO / ENFERMERIA):**
-- Hacer clic en el ícono de **planilla clínica** junto al turno del paciente.
+- Hacer clic en el ícono de **Ficha Asistencial** junto al turno del paciente.
 
 ### 8.2 Registrar signos vitales (Enfermería)
 
