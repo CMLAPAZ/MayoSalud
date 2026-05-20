@@ -187,7 +187,7 @@ Desde la tarjeta de turno en la agenda, usar los botones de acción rápida:
 2. Modificar los datos necesarios.
 3. Hacer clic en **Guardar**.
 
-Para eliminar un turno hacer clic en el ícono de **papelera** (disponible para ADMIN).
+Para eliminar o cancelar un turno, utilizar las acciones disponibles según el rol autorizado. ADMIN y RECEPCION gestionan la agenda; MEDICO y ENFERMERIA no pueden modificar turnos.
 
 ### 5.5 Navegar entre fechas
 
@@ -218,6 +218,7 @@ En la barra de búsqueda ingresar el nombre o apellido del paciente. La lista se
    - **Obra social:** escribir las primeras letras y seleccionar de la lista desplegable.
    - Nro. de afiliado (si corresponde)
 4. Completar antecedentes y alergias (opcional).
+   Los campos de antecedentes y alergias, si se utilizan, deben considerarse información sensible de apoyo y cargarse según el criterio institucional definido por la clínica.
 5. Marcar el **consentimiento informado** (obligatorio para nuevos pacientes, requerido por Ley 25.326).
 6. Hacer clic en **Guardar**.
 
@@ -248,7 +249,7 @@ Hacer clic en el ícono de **baja** sobre el paciente. El registro se conserva e
 ## 7. Módulo Médicos
 
 Acceso desde el menú lateral: **Médicos**  
-*(disponible para ADMIN)*
+*(Disponible para ADMIN. RECEPCION puede consultar la lista en modo lectura, según permisos del sistema.)*
 
 ### 7.1 Registrar un médico
 
@@ -449,8 +450,6 @@ El módulo de Auditoría registra el resultado del envío diario de recordatorio
 
 **¿Por qué MEDICO puede ver la Ficha Asistencial de un paciente que no es "suyo"?**
 El sistema permite consulta institucional: un médico puede ver la Ficha Asistencial de cualquier paciente activo por razones de atención, interconsulta, guardia, reemplazo o continuidad asistencial. Esto es intencional y responde al criterio de atención institucional. En una etapa futura puede agregarse auditoría específica del motivo de consulta por interconsulta.
-
----
 
 ---
 
