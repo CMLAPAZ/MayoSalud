@@ -50,7 +50,10 @@ public class RecordatorioScheduler {
                 .toList();
 
         if (turnos.isEmpty()) {
-            log.info("Recordatorios {}: sin turnos para mañana", manana);
+            String sinTurnos = "Recordatorios " + manana + ": sin turnos para recordar";
+            log.info(sinTurnos);
+            auditoriaService.registrar("RECORDATORIOS_EMAIL", "Turno", manana.toString(),
+                    sinTurnos, "sistema", "scheduler");
             return;
         }
 

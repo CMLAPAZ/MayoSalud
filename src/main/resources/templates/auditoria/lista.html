@@ -71,8 +71,9 @@
                                                    log.accion == 'ELIMINAR'      ? 'bg-danger'    :
                                                    log.accion == 'BAJA'          ? 'bg-danger'    :
                                                    log.accion == 'LOGIN_FALLIDO' ? 'bg-warning text-dark' :
-                                                   log.accion == 'BLOQUEADO'     ? 'bg-danger'    :
-                                                                                   'bg-secondary'}"
+                                                   log.accion == 'BLOQUEADO'          ? 'bg-danger'        :
+                                                   log.accion == 'RECORDATORIOS_EMAIL' ? 'bg-info text-dark' :
+                                                                                         'bg-secondary'}"
                                   th:text="${log.accion}"></span>
                         </td>
                         <td class="text-muted small" th:text="${log.entidad}"></td>
